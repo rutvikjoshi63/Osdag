@@ -291,6 +291,9 @@ class MaterialValidator(object):
 ###########################
 TYPE_COMBOBOX = 'ComboBox'
 TYPE_COMBOBOX_FREEZE = 'Disable_ComboBoc'
+TYPE_TABLE_IN = 'Table_Input'
+TYPE_TABLE_OU = 'Table_Output'
+TYPE_TABLE_GUS = 'Gusset_Table'
 TYPE_TEXTBOX = 'TextBox'
 TYPE_TITLE = 'Title'
 TYPE_LABEL = 'Label'
@@ -334,6 +337,7 @@ KEY_DISP_ENDPLATE = 'End Plate Connection'
 KEY_DISP_CLEATANGLE = 'Cleat Angle Connection'
 KEY_DISP_SEATED_ANGLE = 'Seated Angle Connection'
 KEY_DISP_BASE_PLATE = 'Base Plate Connection'
+KEY_DISP_TRUSS_BOLTED = 'Truss Connection Bolted'
 
 KEY_DISP_BEAMCOVERPLATE = 'Beam-to-Beam Cover Plate Bolted Connection'
 KEY_DISP_COLUMNCOVERPLATE = 'Column-to-Column Cover Plate Bolted Connection'
@@ -354,6 +358,8 @@ DISP_TITLE_CM = 'Connecting Members'
 ###################################
 KEY_MODULE = 'Module'
 KEY_CONN = 'Connectivity'
+KEY_TABLE = 'Table'
+KEY_MEMBERS = 'No of Members'
 KEY_LOCATION = 'Conn_Location'
 KEY_ENDPLATE_TYPE = 'EndPlateType'
 KEY_MATERIAL = 'Material'
@@ -471,7 +477,9 @@ VALUES_PLATETHK = ['All', 'Customized']
 VALUES_FLANGEPLATE_THICKNESS = ['All', 'Customized']
 VALUES_WEBPLATE_THICKNESS = ['All', 'Customized']
 VALUES_ANGLESEC= ['All', 'Customized']
+VALUES_TRUSSBOLT_THK = ['8', '10', '12', '14', '16']
 
+VALUES_MEMBERS = ['1', '2', '3', '4']
 ALL_WELD_SIZES = [3, 4, 5, 6, 8, 10, 12, 14, 16]
 VALUES_TYP_ANCHOR = ['End Plate Type', 'IS 5624-Type A', 'IS 5624-Type B']
 VALUES_GRD_FOOTING = ['Select Grade', 'M10', 'M15', 'M20', 'M25', 'M30', 'M35', 'M40', 'M45', 'M50', 'M55']
@@ -607,6 +615,7 @@ DISP_TITLE_FOOTING = 'Pedestal/Footing'
 KEY_DISP_CONN = 'Connectivity'
 
 KEY_DISP_ENDPLATE_TYPE = 'End Plate Type'
+KEY_DISP_MEMBERS = 'No of Members'
 
 
 # VALUES_CONN_BP = ['Welded-Slab Base', 'Bolted-Slab Base', 'Gusseted Base Plate', 'Hollow Section']
