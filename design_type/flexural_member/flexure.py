@@ -614,9 +614,12 @@ class Flexure(Member):
         elif self.design_type_temp == VALUES_SUPP_TYPE_temp[1]:
             self.design_type = VALUES_SUPP_TYPE[0]
             self.bending_type = KEY_DISP_BENDING2 #if design_dictionary[KEY_BENDING] != 'Disabled' else 'NA'
+            self.support_cndition_shear_buckling = 'NA'
+            
         elif self.design_type_temp == VALUES_SUPP_TYPE_temp[2]:
             self.design_type = VALUES_SUPP_TYPE[1]
             self.bending_type = KEY_DISP_BENDING1
+            self.support_cndition_shear_buckling = 'NA'
 
         # section user data        
         self.length = float(design_dictionary[KEY_LENGTH])
@@ -719,7 +722,7 @@ class Flexure(Member):
                 pass
             else:
                 self.latex_tension_zone = True
-
+                print(f'self.latex_tension_zone: {self.latex_tension_zone}')
                 # self.effective_area_factor = (
                 #     self.material_property.fy
                 #     * self.gamma_m0
@@ -784,10 +787,10 @@ class Flexure(Member):
         self.optimum_section_cost_results = {}
         self.optimum_section_cost = []
 
-        # section classification
-        flag = self.section_classification(self)
-        print(f"Inside design_beam flag:{flag}")
+        # 1 - section classification
+        flag = self.section_classification(self,design_dictionary)
         
+        print('flag:',flag)
         if self.effective_area_factor < 1.0:
             logger.warning(
                 "Reducing the effective sectional area as per the definition in the Design Preferences tab."
@@ -800,13 +803,15 @@ class Flexure(Member):
         self.effective_length_beam(self, design_dictionary, self.length)  # mm
         print(
             f"self.effective_length {self.effective_length} \n self.input_section_classification{self.input_section_classification} ")
-
+        print('self.input_section_list:',self.input_section_list)
         if flag:
             for section in self.input_section_list:
                 # initialize lists for updating the results dictionary
                 self.section_property = self.section_connect_database(self, section)
                 self.effective_depth = (self.section_property.depth - 2 * (
                             self.section_property.flange_thickness + self.section_property.root_radius))
+                print('self.section_property.type:',self.section_property.type, self.bending_type)
+                
                 if self.sec_profile == 'Beams' or self.sec_profile == 'Columns':
                     if self.section_property.type == "Rolled" and self.bending_type == KEY_DISP_BENDING1:
                         self.shear_area = self.section_property.depth * self.section_property.web_thickness
@@ -832,6 +837,13 @@ class Flexure(Member):
                      self.M_cr = self.input_section_classification[section][ 8 ]
                      self.beta_b_lt = self.input_section_classification[section][ 9 ]
                      self.lambda_lt = self.input_section_classification[section][ 10 ]
+                     print('self.design_type:',self.design_type, self.It,
+                            self.hf,
+                            self.Iw,
+                            self.M_cr,
+                            self.beta_b_lt,
+                            self.lambda_lt)
+                     
                 self.beam_web_buckling(self)
                 if self.web_buckling_check:
                     self.web_buckling_steps(self)
@@ -1005,6 +1017,7 @@ class Flexure(Member):
 
     def bending_strength(self):
         print('Inside bending_strength ')
+        
         # 4 - design bending strength
         M_d = IS800_2007.cl_8_2_1_2_design_bending_strength(
             self.section_class,
@@ -1033,6 +1046,12 @@ class Flexure(Member):
                 bending_strength_section = M_d
             print('Inside bending_strength 1', M_d, self.high_shear_check, bending_strength_section)
         else:
+            print('self.design_type:',self.design_type, self.It,
+                            self.hf,
+                            self.Iw,
+                            self.M_cr,
+                            self.beta_b_lt,
+                            self.lambda_lt)
             # self.It = (
             #     2
             #     * self.section_property.flange_width
@@ -1071,10 +1090,10 @@ class Flexure(Member):
             #     self.M_cr
             # )
             phi_lt = IS800_2007.cl_8_2_2_Unsupported_beam_bending_phi_lt(
-                alpha_lt, lambda_lt
+                alpha_lt, self.lambda_lt
             )
             X_lt = IS800_2007.cl_8_2_2_Unsupported_beam_bending_stress_reduction_factor(
-                phi_lt, lambda_lt
+                phi_lt, self.lambda_lt
             )
             fbd = IS800_2007.cl_8_2_2_Unsupported_beam_bending_compressive_stress(
                 X_lt, self.material_property.fy, self.gamma_m0
@@ -1105,7 +1124,7 @@ class Flexure(Member):
                         * self.section_property.plast_sec_mod_z
                         * fbd
                     )
-            print('Inside bending_strength 2',It,self.hf,self.Iw,self.M_cr ,self.beta_b_lt,alpha_lt,lambda_lt,phi_lt,X_lt,fbd,bending_strength_section)
+            print('Inside bending_strength 2',self.It,self.hf,self.Iw,self.M_cr ,self.beta_b_lt,alpha_lt,self.lambda_lt,phi_lt,X_lt,fbd,bending_strength_section)
         self.bending_strength_section_reduced = bending_strength_section
         return bending_strength_section
     def bending_strength_girder(self):
@@ -1238,7 +1257,7 @@ class Flexure(Member):
                         * self.section_property.plast_sec_mod_z
                         * fbd
                     )
-            print('Inside bending_strength 2',It,self.hf,self.Iw,self.fcrb ,self.beta_b_lt,alpha_lt,lambda_lt,phi_lt,X_lt,fbd,bending_strength_section)
+            print('Inside bending_strength 2',self.It,self.hf,self.Iw,self.fcrb ,self.beta_b_lt,alpha_lt,lambda_lt,phi_lt,X_lt,fbd,bending_strength_section)
         self.bending_strength_section_reduced = bending_strength_section
         return bending_strength_section
     def bending_strength_reduction(self, Md):
@@ -1269,7 +1288,7 @@ class Flexure(Member):
             )
 
     
-    def section_classification(self, trial_section=""):
+    def section_classification(self, design_dictionary,trial_section=""):
         """Classify the sections based on Table 2 of IS 800:2007"""
         print(f"Inside section_classification")
         local_flag = True
@@ -1295,7 +1314,6 @@ class Flexure(Member):
                 web_ratio = (self.section_property.depth - 2*(self.section_property.flange_thickness + self.section_property.root_radius)) / self.section_property.web_thickness
                 flange_ratio = self.section_property.flange_width / 2  /self.section_property.flange_thickness
             else:
-                """Need to check below formula"""
                 flange_class = IS800_2007.Table2_i(
                     (
                         (self.section_property.flange_width / 2)
@@ -1341,9 +1359,12 @@ class Flexure(Member):
                     self.section_class = "Semi-Compact"
 
             Zp_req = self.load.moment * self.gamma_m0 / self.material_property.fy
+            self.effective_length_beam(self, design_dictionary, self.length)  # mm
 
-            # print( 'self.allow_class', self.allow_class)
+            print( 'self.allow_class', self.allow_class)
             if self.section_property.plast_sec_mod_z >= Zp_req:
+                print( 'self.section_property.plast_sec_mod_z More than Requires')
+                
                 if self.design_type == KEY_DISP_DESIGN_TYPE2_FLEXURE:
                     self.It = (
                                       2
