@@ -2865,17 +2865,25 @@ class Member(Main):
     def Stiffener_design(self, input_dictionary):
         optimum = []
         values = {KEY_IntermediateStiffener:'Yes',
+                  KEY_EndPost:'Yes',
                   KEY_IntermediateStiffener_spacing:'NA'
                    }
 
         for key in values.keys():
             if key in input_dictionary.keys():
                 values[key] = input_dictionary[key]
+        
+        t8 = (KEY_EndPost, KEY_DISP_EndPost, TYPE_COMBOBOX, ['Yes','No'],  values[KEY_IntermediateStiffener])
+        optimum.append(t8)
+        
         t8 = (KEY_IntermediateStiffener, KEY_DISP_IntermediateStiffener, TYPE_COMBOBOX, ['Yes','No'],  values[KEY_IntermediateStiffener])
         optimum.append(t8)
 
         t8 = (KEY_IntermediateStiffener_spacing, KEY_DISP_IntermediateStiffener_spacing, TYPE_TEXTBOX, None, values[KEY_IntermediateStiffener_spacing])
         optimum.append(t8)
+        
+        t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, Stiffeners_design_DESCRIPTION , None)
+        optimum.append(t9)
         
         return optimum
         

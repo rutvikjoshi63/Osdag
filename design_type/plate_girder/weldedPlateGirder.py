@@ -33,6 +33,9 @@ from utils.common import is800_2007
 from utils.common.component import *
 from utils.common.Section_Properties_Calculator import I_sectional_Properties
 from design_type.flexural_member.flexure import Flexure
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import *
+
 '''
 Debugging tools
 '''
@@ -239,7 +242,7 @@ class PlateGirderWelded(Member):
         t2 = ("Under Development", TYPE_COMBOBOX, [KEY_ALLOW_CLASS, KEY_LOAD, KEY_ShearBucklingOption]) #, KEY_STEEL_COST
         design_input.append(t2)
         
-        t2 = ("Stiffeners", TYPE_COMBOBOX, [KEY_IntermediateStiffener]) 
+        t2 = ("Stiffeners", TYPE_COMBOBOX, [KEY_IntermediateStiffener,KEY_EndPost]) 
         design_input.append(t2)
         
         t2 = ("Stiffeners", TYPE_TEXTBOX, [KEY_IntermediateStiffener_spacing]) 
@@ -255,7 +258,7 @@ class PlateGirderWelded(Member):
         t2 = (KEY_MATERIAL, [KEY_DP_DESIGN_METHOD], 'Input Dock')
         design_input.append(t2)
         
-        t2 = (None, [KEY_ALLOW_CLASS, KEY_EFFECTIVE_AREA_PARA, KEY_LENGTH_OVERWRITE,KEY_BEARING_LENGTH, KEY_LOAD, KEY_DP_DESIGN_METHOD, KEY_ShearBucklingOption, KEY_IntermediateStiffener_spacing, KEY_IntermediateStiffener], '')
+        t2 = (None, [KEY_ALLOW_CLASS, KEY_EFFECTIVE_AREA_PARA, KEY_LENGTH_OVERWRITE,KEY_BEARING_LENGTH, KEY_LOAD, KEY_DP_DESIGN_METHOD, KEY_ShearBucklingOption, KEY_IntermediateStiffener_spacing, KEY_IntermediateStiffener,KEY_EndPost], '')
         design_input.append(t2)
 
         return design_input
@@ -287,6 +290,7 @@ class PlateGirderWelded(Member):
             KEY_DP_DESIGN_METHOD: "Limit State Design",
             KEY_ShearBucklingOption: KEY_DISP_SB_Option[0],
             KEY_IntermediateStiffener:'Yes',
+            KEY_EndPost:'Yes',
             KEY_IntermediateStiffener_spacing:'NA'
         }[key]
 
@@ -414,8 +418,11 @@ class PlateGirderWelded(Member):
 
         out_list = []
         t1 = (None, DISP_TITLE_STRUT_SECTION, TYPE_TITLE, None, True)
-
         out_list.append(t1)
+        
+        t17 = (KEY_OUT_PATTERN_1, KEY_OUT_DISP_PATTERN, TYPE_OUT_BUTTON, ['Section Details ', self.section_details], True)
+        out_list.append(t17)
+        
         t2 = (KEY_betab_constatnt, KEY_DISP_betab_constatnt, TYPE_TEXTBOX,
               'NA', True)
         out_list.append(t2)
@@ -486,7 +493,15 @@ class PlateGirderWelded(Member):
                         flag3 = True
             if option[0] == KEY_tf :
                 if design_dictionary[KEY_tf] != "" and design_dictionary[KEY_tw] != "" and design_dictionary[KEY_dw] != "" and design_dictionary[KEY_bf] != "":
-                    flag4 = True
+                    if float(design_dictionary[KEY_LENGTH])*10**3 / float(design_dictionary[KEY_dw])>12:
+                        if float(design_dictionary[KEY_dw])/ float(design_dictionary[KEY_tw])<345:
+                            flag4 = True
+                        else:
+                            error = f"Ratio of Section web-depth to section web-thickness cannot be more than 345."
+                            all_errors.append(error)
+                    else:
+                        error = f"Span to section depth ratio cannot be less than 12. Min span ={round(float(design_dictionary[KEY_dw])*12/10**3)}m"
+                        all_errors.append(error)
                 # TODO elif design_dictionary[KEY_tf] == "" and design_dictionary[KEY_tw] == "" and design_dictionary[KEY_dw] == "" and design_dictionary[KEY_bf] == "":
                 #     flag4 = True
                 else:
@@ -501,6 +516,8 @@ class PlateGirderWelded(Member):
         else:
             flag = True
 
+        # QMessageBox.about(self,'information',error[0])  # show only first error message.
+        
         if flag and flag1 and flag2 and flag3 and flag4:
             ic(f"\n design_dictionary{design_dictionary}")
             self.set_input_values(self, design_dictionary) #
@@ -514,6 +531,11 @@ class PlateGirderWelded(Member):
                 yield isinstance(float(input_list[i]),float)
             except:
                 yield False
+    
+    def section_details(self,status):
+        section = []
+        return section
+        
     # Setting inputs from the input dock GUI
     def set_input_values(self, design_dictionary):
         # out_list = []
@@ -541,8 +563,8 @@ class PlateGirderWelded(Member):
         
         # Tab3
         # No option for End Post
-        self.EndStiffener = 'Yes'
-        self.IntermediateStiffener = design_dictionary[KEY_IntermediateStiffener]
+        self.EndStiffener = True
+        self.IntermediateStiffener = True if design_dictionary[KEY_IntermediateStiffener] == 'Yes' else False
         self.IntermediateStiffener_spacing=  design_dictionary[KEY_IntermediateStiffener_spacing] if self.IntermediateStiffener else "NA"
         ic("Intermediate Stiffener",self.IntermediateStiffener)
         self.effective_area_factor = float(design_dictionary[KEY_EFFECTIVE_AREA_PARA])
@@ -645,10 +667,21 @@ class PlateGirderWelded(Member):
         # 4. Finding other parameters of the section
         self.Girder_SectionProperty(self,self.single_section_dictionary,self.design)
         
+        # Preliminary stiffener basis d/tw ratio
+        k = self.section_property.depth_web/self.section_property.web_thickness
+        if ('End Stiffener' not in self.single_section_dictionary) and ('Intermediate Stiffener' not in self.single_section_dictionary):
+            if k<67:
+                self.single_section_dictionary['End Stiffener'] = True or self.EndStiffener
+                self.single_section_dictionary['Intermediate Stiffener'] = False or self.IntermediateStiffener
+            elif k<200:
+                self.single_section_dictionary['End Stiffener'] = True or self.EndStiffener
+                self.single_section_dictionary['Intermediate Stiffener'] = True or self.IntermediateStiffener
+        
         # 5. Checks
         # 5.1 Web needed by User Thick or thin 
-        if 'Check1' not in self.single_section_dictionary :# TODO check if required -> or self.single_section_dictionary['Check1'] == None
-            self.single_section_dictionary['Check1'] = self.checks(self,1)
+        #if 'Check1' not in self.single_section_dictionary :# TODO check if required -> or self.single_section_dictionary['Check1'] == None
+        #    self.single_section_dictionary['Check1'] = self.checks(self,1)
+        
         # 5.2 servicibility_check Only for Intermediate Transverse stiffener
         self.single_section_dictionary['Check2'] = self.checks(self,2)
         # 5.3 compression_flange_buckling

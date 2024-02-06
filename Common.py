@@ -640,6 +640,8 @@ KEY_DISP_dw = 'Web Depth(mm)'
 KEY_DISP_bf = 'Flange Width(mm)'
 KEY_IntermediateStiffener = 'IntermediateStiffener.Data'
 KEY_DISP_IntermediateStiffener = 'Intermediate Stiffener'
+KEY_EndPost = 'EndPost.Data'
+KEY_DISP_EndPost = 'End Post'
 KEY_DISP_Plate_Girder_PROFILE = 'Section Profile'
 KEY_IntermediateStiffener_spacing = 'IntermediateStiffener.Spacing'
 KEY_DISP_IntermediateStiffener_spacing = 'Intermediate Stiffener Spacing'
@@ -2560,3 +2562,18 @@ FLEXURE_OPTIMIZATION_DESCRIPTION = str("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML
                "p, li { white-space: pre-wrap; }\n"
                "</style></head><body style=\" font-family:\'Arial\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
                ) + Allowable_Utilization_Para + Effective_Area_Para + Effective_Length_Para + Bearing_Length_Para
+
+Stiffeners_design_DESCRIPTION = str("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+               "p, li { white-space: pre-wrap; }\n"
+               "</style></head><body style=\" font-family:\'Arial\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
+               "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\">The </span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt; font-weight:600;\">End Post</span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"> TODO</span></p>\n"
+               "<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Calibri\'; font-size:8pt; vertical-align:middle;\"><br /></p>\n"
+               "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\">The </span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt; font-weight:600;\">Intermediate Stiffener</span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"> TODO</span></p>\n"
+               "<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Calibri\'; font-size:8pt;\"><br /></p>\n"
+               "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\">The </span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt; font-weight:600;\">Intermediate Stiffener Spacing</span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"> TODO</span></p>\n"
+               "<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Calibri\'; font-size:8pt;\"><br /></p>\n"
+               "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\">The </span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt; font-weight:600;\">Serviceability requirement</span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"> Cl 8.6.1.1 TODO</span></p>\n"
+               "<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Calibri\'; font-size:8pt;\"><br /></p>\n"
+               "<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\">The </span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt; font-weight:600;\">Buckling requirement</span><span style=\" font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"> Cl 8.6.1.2 TODO</span></p>\n"
+               "<p align=\"justify\" style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"><br /></p></body></html>")
