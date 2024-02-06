@@ -534,6 +534,22 @@ class PlateGirderWelded(Member):
     
     def section_details(self,status):
         section = []
+        
+        t00 = (None, "", TYPE_NOTE, "Optmised Section Size \n (Image is for reference only)")
+        section.append(t00)
+        
+        t16 = (KEY_OUT_BOLTS_ONE_LINE, KEY_OUT_DISP_BOLTS_ONE_LINE, TYPE_TEXTBOX, self.result_tf if status else '',True)
+        section.append(t16)
+        
+        t16 = (KEY_OUT_BOLTS_ONE_LINE, KEY_OUT_DISP_BOLTS_ONE_LINE, TYPE_TEXTBOX, self.result_tw if status else '',True)
+        section.append(t16)
+        
+        t16 = (KEY_OUT_BOLTS_ONE_LINE, KEY_OUT_DISP_BOLTS_ONE_LINE, TYPE_TEXTBOX, self.result_dw if status else '',True)
+        section.append(t16)
+        
+        t16 = (KEY_OUT_BOLTS_ONE_LINE, KEY_OUT_DISP_BOLTS_ONE_LINE, TYPE_TEXTBOX, self.result_bf if status else '',True)
+        section.append(t16)
+        
         return section
         
     # Setting inputs from the input dock GUI
