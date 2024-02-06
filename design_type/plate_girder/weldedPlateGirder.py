@@ -538,6 +538,14 @@ class PlateGirderWelded(Member):
         
     # Setting inputs from the input dock GUI
     def set_input_values(self, design_dictionary):
+        """Connects GUI input values to the design dictionary and returns output values
+
+        Args:
+            design_dictionary (dic): Key value dictionary containing values from input dock & Design preference
+
+        Returns:
+            None: initialises result dictionary
+        """
         # out_list = []
         ### INPUT FROM INPUT DOCK ####
         self.length = float(design_dictionary[KEY_LENGTH])*10**3 #m -> mm
