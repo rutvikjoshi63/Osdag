@@ -200,6 +200,24 @@ class Window(QMainWindow):
         self.window.exec()
         return self.ui.get_right_elements()
 
+    def open_design_preference(self, main):
+        print('main.module_name',main.module_name(main))
+        # if not main.design_button_status:
+        # self.actionDesign_Preferences.triggered.connect(self.design_preferences)
+        
+        self.actionDesign_Preferences = QtWidgets.QAction(MainWindow)
+
+        self.actionDesign_Preferences.setObjectName("actionDesign_Preferences")
+        print(f"inside common_function_for_save_and_design ")
+        self.actionDesign_Preferences.triggered.connect(lambda: self.common_function_for_save_and_design(main, data, "Design_Pref"))
+        print(f"outside common_function_for_save_and_design ")
+        self.actionDesign_Preferences.triggered.connect(lambda: self.combined_design_prefer(data,main))
+        self.actionDesign_Preferences.triggered.connect(self.design_preferences)
+        self.designPrefDialog = DesignPreferences(main, self, input_dictionary=self.input_dock_inputs)
+        
+        # QMessageBox.warning(self, 'Warning', 'No design created!')
+            # return
+        
     def open_summary_popup(self, main):
         print('main.module_name',main.module_name(main))
         if not main.design_button_status:
@@ -770,15 +788,18 @@ class Window(QMainWindow):
             if type == TYPE_IN_BUTTON:
                 # l = QtWidgets.QLineEdit(self.dockWidgetContents)
                 l = QtWidgets.QPushButton(self.dockWidgetContents)
-                l.setGeometry(QtCore.QRect(150, 10 + i, 150, 27))
+                # l.setGeometry(QtCore.QRect(150, 10 + i, 150, 27))
                 # l.setAlignment(Qt.AlignHCenter) #
                 l.setObjectName(option[0]) # + "_note"
                 # l.setText(_translate("MainWindow", "<html><head/><body><p>" + option[4] + "</p></body></html>"))
                 l.setText(option[3])
                 l.setDisabled(False)
+                
                 # l.setReadOnly(True)
                 # l.setFixedSize(l.size())
                 in_layout2.addWidget(l, j, 2, 1, 1)
+                l.clicked.connect(lambda: self.open_design_preference(main))
+                
                 
             i = i + 30
             j = j + 1

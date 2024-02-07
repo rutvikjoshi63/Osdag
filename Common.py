@@ -510,7 +510,7 @@ KEY_DISP_STEEL_COST = 'Steel cost (INR / per kg)'
 #Flexure Members
 ###################################
 KEY_DESIGN_PREFERENCE_REDIRECT = 'DP.Redirect'
-KEY_DISPLAY_DESIGN_PREFERENCE_REDIRECT = 'DPRedirect-DISPLAY'
+KEY_DISPLAY_DESIGN_PREFERENCE_REDIRECT = 'More Customisation'
 KEY_Flexure_Member_MAIN_MODULE = 'Flexure Member'
 KEY_DISP_FLEXURE = 'Flexural Members - Simply Supported'
 KEY_DISP_FLEXURE2 = 'Flexural Members - Cantilever'
