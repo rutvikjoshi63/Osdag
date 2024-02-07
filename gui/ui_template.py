@@ -767,6 +767,19 @@ class Window(QMainWindow):
                 in_layout2.addWidget(q, j, 1, 2, 2)
                 j = j + 1
 
+            if type == TYPE_IN_BUTTON:
+                # l = QtWidgets.QLineEdit(self.dockWidgetContents)
+                l = QtWidgets.QPushButton(self.dockWidgetContents)
+                l.setGeometry(QtCore.QRect(150, 10 + i, 150, 27))
+                # l.setAlignment(Qt.AlignHCenter) #
+                l.setObjectName(option[0]) # + "_note"
+                # l.setText(_translate("MainWindow", "<html><head/><body><p>" + option[4] + "</p></body></html>"))
+                l.setText(option[3])
+                l.setDisabled(False)
+                # l.setReadOnly(True)
+                # l.setFixedSize(l.size())
+                in_layout2.addWidget(l, j, 2, 1, 1)
+                
             i = i + 30
             j = j + 1
         in_layout2.setRowStretch(j+1, 10)

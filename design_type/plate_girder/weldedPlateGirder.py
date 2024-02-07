@@ -401,6 +401,10 @@ class PlateGirderWelded(Member):
 
         t8 = (KEY_WEB_CRIPPLING, KEY_DISP_CRIPPLING_STRENGTH, TYPE_COMBOBOX, ['Yes','No'], True, 'No Validator')
         options_list.append(t8)
+        
+        t17 = (KEY_DESIGN_PREFERENCE_REDIRECT, KEY_DISPLAY_DESIGN_PREFERENCE_REDIRECT, TYPE_IN_BUTTON, 'Design Preference ', True)
+        options_list.append(t17)
+        
         return options_list
 
     def input_value_changed(self):
