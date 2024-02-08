@@ -566,6 +566,7 @@ class PlateGirderWelded(Member):
         Returns:
             None: initialises result dictionary
         """
+        
         # out_list = []
         ### INPUT FROM INPUT DOCK ####
         self.length = float(design_dictionary[KEY_LENGTH])*10**3 #m -> mm

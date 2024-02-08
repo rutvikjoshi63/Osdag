@@ -205,7 +205,7 @@ class Window(QMainWindow):
         # if not main.design_button_status:
         # self.actionDesign_Preferences.triggered.connect(self.design_preferences)
         
-        self.actionDesign_Preferences = QtWidgets.QAction(MainWindow)
+        self.actionDesign_Preferences = QtWidgets.QAction(QtWidgets.QMainWindow())#MainWindow
 
         self.actionDesign_Preferences.setObjectName("actionDesign_Preferences")
         print(f"inside common_function_for_save_and_design ")
