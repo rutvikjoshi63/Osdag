@@ -1,3 +1,21 @@
+"""
+
+@Author:    Rutvik Joshi - Osdag Team, IIT Bombay [(P) rutvikjoshi63@gmail.com / 30005086@iitb.ac.in]
+
+@Module - Compression Member
+@Sub Module - Strut in a Truss
+
+
+@Reference(s): 1) IS 800: 2007, General construction in steel - Code of practice (Third revision)
+               2) IS 808: 1989, Dimensions for hot rolled steel beam, column, channel, and angle sections and
+                                it's subsequent revision(s)
+               3) Design of Steel Structures by N. Subramanian (Fifth impression, 2019, Chapter 15)
+               4) Limit State Design of Steel Structures by S K Duggal (second edition, Chapter 11)
+                     
+other          8) 
+references     9)
+
+"""
 # noinspection PyInterpreter
 from design_type.member import Member
 from Common import *
@@ -47,16 +65,7 @@ class Compression(Member):
 
         t2 = ("Optimization", TYPE_TAB_2, self.optimization_tab_strut_design)
         tabs.append(t2)
-
-        # t6 = ("Connector", TYPE_TAB_2, self.plate_connector_values)#plate_connector_values
-        # tabs.append(t6)
-
-        # t3 = ("Bolt", TYPE_TAB_2, self.bolt_strut_design)
-        # tabs.append(t3)
-
-        # t4 = ("Detailing", TYPE_TAB_2, self.detailing_values)
-        # tabs.append(t4)
-
+        
         t5 = ("Design", TYPE_TAB_2, self.design_values)
         tabs.append(t5)
 
@@ -154,15 +163,6 @@ class Compression(Member):
         t2 = ("Optimization", TYPE_COMBOBOX, [ KEY_ALLOW_LOAD, Load_type2, Load_type1, KEY_PLATETHK ]) # KEY_OPTIMIZATION_PARA, KEY_ALLOW_CLASS,
         design_input.append(t2)
 
-        # t3 = ("Bolt", TYPE_COMBOBOX, [KEY_DP_BOLT_TYPE, KEY_DP_BOLT_HOLE_TYPE, KEY_DP_BOLT_SLIP_FACTOR])
-        # design_input.append(t3)
-
-        # t5 = ("Detailing", TYPE_TEXTBOX, [KEY_DP_DETAILING_GAP])
-        # design_input.append(t5)
-        #
-        # t5 = ("Detailing", TYPE_COMBOBOX, [KEY_DP_DETAILING_CORROSIVE_INFLUENCES, KEY_DP_DETAILING_EDGE_TYPE])
-        # design_input.append(t5)
-
         t6 = ("Design", TYPE_COMBOBOX, [KEY_DP_DESIGN_METHOD])
         design_input.append(t6)
 
@@ -209,7 +209,7 @@ class Compression(Member):
          [(Tab Name,  Input Dock Key, Input Dock Key type, design preference key, Master key, Value, Database Table Name)]
         """
         add_buttons = []
-
+# TODO
         t2 = (DISP_TITLE_ANGLE, KEY_SECSIZE, TYPE_COMBOBOX_CUSTOMIZED, KEY_SECSIZE_SELECTED, KEY_SEC_PROFILE,
               VALUES_SEC_PROFILE_Compression_Strut , Profile_name_1)
         add_buttons.append(t2)
@@ -365,67 +365,7 @@ class Compression(Member):
         t8 = (KEY_AXIAL, KEY_DISP_AXIAL, TYPE_TEXTBOX, None, True, 'No Validator')
         options_list.append(t8)
 
-        # t8 = (None, DISP_TITLE_BOLT, TYPE_TITLE, None, True, 'No Validator')
-        # options_list.append(t8)
-        #
-        # t10 = (KEY_D, KEY_DISP_D, TYPE_COMBOBOX_CUSTOMIZED, VALUES_D, True, 'No Validator')
-        # options_list.append(t10)
-        #
-        # t11 = (KEY_TYP, KEY_DISP_TYP, TYPE_COMBOBOX, VALUES_TYP, True, 'No Validator')
-        # options_list.append(t11)
-        #
-        # t12 = (KEY_GRD, KEY_DISP_GRD, TYPE_COMBOBOX_CUSTOMIZED, VALUES_GRD, True, 'No Validator')
-        # options_list.append(t12)
-        #
-        # t13 = (None, KEY_DISP_GUSSET, TYPE_TITLE, None, True, 'No Validator')
-        # options_list.append(t13)
-        #
-        # # try:
-        # #     if self.sec_profile != 'Back to Back Angles':
-        # #         t14 = (KEY_PLATETHK, KEY_GUSSET, TYPE_TEXTBOX, ' ', True, 'No Validator')
-        #
-        # t14 = (KEY_PLATETHK, KEY_GUSSET, TYPE_COMBOBOX_CUSTOMIZED, VALUES_PLATETHK, True, 'No Validator')
-        # options_list.append(t14)
-
         return options_list
-
-    def spacing(self, status):
-
-        spacing = []
-
-        t00 = (None, "", TYPE_NOTE, "Representative image for Spacing Details based on member's depth \n (root radius not included in edge distance)")
-        spacing.append(t00)
-
-        t99 = (None, 'Spacing Details', TYPE_SECTION,
-               ['./ResourceFiles/images/spacing_1.png', 400, 278, "3 x 3 pattern considered"])  # [image, width, height, caption]
-        spacing.append(t99)
-
-        if self.sec_profile == 'Star Angles':
-            t16 = (KEY_OUT_BOLTS_ONE_LINE_S, KEY_OUT_DISP_BOLTS_ONE_LINE_S, TYPE_TEXTBOX,
-                   int(self.plate.bolts_one_line/2) if status else '', True)
-            spacing.append(t16)
-        else:
-            pass
-
-        t16 = (KEY_OUT_BOLTS_ONE_LINE, KEY_OUT_DISP_BOLTS_ONE_LINE, TYPE_TEXTBOX, self.plate.bolts_one_line if status else '',True)
-        spacing.append(t16)
-
-        t15 = (KEY_OUT_BOLT_LINE, KEY_OUT_DISP_BOLT_LINE, TYPE_TEXTBOX, self.plate.bolt_line if status else '', True)
-        spacing.append(t15)
-
-        t9 = (KEY_OUT_PITCH, KEY_OUT_DISP_PITCH, TYPE_TEXTBOX, self.plate.pitch_provided if status else '')
-        spacing.append(t9)
-
-        t10 = (KEY_OUT_END_DIST, KEY_OUT_DISP_END_DIST, TYPE_TEXTBOX, self.plate.end_dist_provided if status else '')
-        spacing.append(t10)
-
-        t11 = (KEY_OUT_GAUGE, KEY_OUT_DISP_GAUGE, TYPE_TEXTBOX, self.plate.gauge_provided if status else '')
-        spacing.append(t11)
-
-        t12 = (KEY_OUT_EDGE_DIST, KEY_OUT_DISP_EDGE_DIST, TYPE_TEXTBOX, self.plate.edge_dist_provided if status else '')
-        spacing.append(t12)
-
-        return spacing
 
     def memb_pattern(self, status):
 
@@ -579,7 +519,6 @@ class Compression(Member):
     def output_values(self,flag):
         #flag for design status
         out_list = []
-        optimisation = ''
         # if flag is True:
         #     if self.input_values is not VALUE_NOT_APPLICABLE:
         #         # print(f"input_values is not VALUE_NOT_APPLICABLE")
@@ -641,157 +580,23 @@ class Compression(Member):
         '', True)
         out_list.append(t1)
 
-        # t19 = (KEY_OUT_PLATETHK, KEY_OUT_DISP_PLATETHK, TYPE_TEXTBOX,
-        #        int(round(22.02, 0)) if flag else '', True)
-        # out_list.append(t19)
-        #
-        # t8 = (None, DISP_TITLE_END_CONNECTION, TYPE_TITLE, None, True)
-        # out_list.append(t8)
-        #
-        # t8 = (None, DISP_TITLE_BOLTD, TYPE_TITLE, None, True)
-        # out_list.append(t8)
-
-        # t9 = (KEY_OUT_D_PROVIDED, KEY_OUT_DISP_D_PROVIDED, TYPE_TEXTBOX,
-        #       int(self.bolt.bolt_diameter_provided) if flag else '', True)
-        # out_list.append(t9)
-        #
-        # t10 = (
-        # KEY_OUT_GRD_PROVIDED, KEY_OUT_DISP_GRD_PROVIDED, TYPE_TEXTBOX, self.bolt.bolt_grade_provided if flag else '',
-        # True)
-        # out_list.append(t10)
-        #
-        # t11 = (KEY_OUT_BOLT_SHEAR, KEY_OUT_DISP_BOLT_SHEAR, TYPE_TEXTBOX,
-        #        round(self.bolt.bolt_shear_capacity / 1000, 2) if flag else '', True)
-        # out_list.append(t11)
-        #
-        # bolt_bearing_capacity_disp = ''
-        # if flag is True:
-        #     if self.bolt.bolt_bearing_capacity is not VALUE_NOT_APPLICABLE:
-        #         bolt_bearing_capacity_disp = round(self.bolt.bolt_bearing_capacity / 1000, 2)
-        #
-        #         pass
-        #     else:
-        #         bolt_bearing_capacity_disp = self.bolt.bolt_bearing_capacity
-        #
-        # t5 = (
-        # KEY_OUT_BOLT_BEARING, KEY_OUT_DISP_BOLT_BEARING, TYPE_TEXTBOX, bolt_bearing_capacity_disp if flag else '', True)
-        # out_list.append(t5)
-        #
-        # t5 = (KEY_REDUCTION_LONG_JOINT, KEY_DISP_REDUCTION_LONG_JOINT, TYPE_TEXTBOX,
-        #       round(self.plate.beta_lj, 2) if flag else '', True)
-        # out_list.append(t5)
-        #
-        # t5 = (KEY_REDUCTION_LARGE_GRIP, KEY_DISP_REDUCTION_LARGE_GRIP, TYPE_TEXTBOX,
-        #       round(self.plate.beta_lg, 2) if flag else '', True)
-        # out_list.append(t5)
-        #
-        # t13 = (KEY_OUT_BOLT_CAPACITY, KEY_OUT_DISP_BOLT_CAPACITY, TYPE_TEXTBOX,
-        #        round(self.plate.bolt_capacity_red / 1000, 2) if flag else '', True)
-        # out_list.append(t13)
-        #
-        # t14 = (KEY_OUT_BOLT_FORCE, KEY_OUT_DISP_BOLT_FORCE, TYPE_TEXTBOX,
-        #        round(self.plate.bolt_force / 1000, 2) if flag else '', True)
-        # out_list.append(t14)
-        #
-        # t17 = (KEY_OUT_SPACING, KEY_OUT_DISP_SPACING, TYPE_OUT_BUTTON, ['Spacing Details', self.spacing], True)
-        # out_list.append(t17)
-        #
-        # t18 = (None, DISP_TITLE_GUSSET_PLATE, TYPE_TITLE, None, True)
-        # out_list.append(t18)
-        #
-        # t19 = (KEY_OUT_PLATETHK, KEY_OUT_DISP_PLATETHK, TYPE_TEXTBOX,
-        #        int(round(self.plate.thickness_provided, 0)) if flag else '', True)
-        # out_list.append(t19)
-        #
-        # t20 = (KEY_OUT_PLATE_HEIGHT, KEY_OUT_DISP_PLATE_MIN_HEIGHT, TYPE_TEXTBOX,
-        #        int(round(self.plate.height, 0)) if flag else '', True)
-        # out_list.append(t20)
-        #
-        # t21 = (KEY_OUT_PLATE_LENGTH, KEY_OUT_DISP_PLATE_MIN_LENGTH, TYPE_TEXTBOX,
-        #        int(round(self.plate.length, 0)) if flag else '', True)
-        # out_list.append(t21)
-        #
-        # t21 = (KEY_OUT_PLATE_YIELD, KEY_DISP_TENSION_YIELDCAPACITY, TYPE_TEXTBOX,
-        #        (round(self.plate.tension_yielding_capacity / 1000, 2)) if flag else '', True)
-        # out_list.append(t21)
-        #
-        # t21 = (KEY_OUT_PLATE_RUPTURE, KEY_DISP_TENSION_RUPTURECAPACITY, TYPE_TEXTBOX,
-        #        (round(self.plate.tension_rupture_capacity / 1000, 2)) if flag else '', True)
-        # out_list.append(t21)
-        #
-        # t21 = (KEY_OUT_PLATE_BLK_SHEAR, KEY_DISP_TENSION_BLOCKSHEARCAPACITY, TYPE_TEXTBOX,
-        #        (round(self.plate.block_shear_capacity / 1000, 2)) if flag else '', True)
-        # out_list.append(t21)
-        #
-        # t17 = (KEY_OUT_PATTERN_2, KEY_OUT_DISP_PATTERN, TYPE_OUT_BUTTON, ['Shear Pattern ', self.plate_pattern], True)
-        # out_list.append(t17)
-        #
-        # t21 = (KEY_OUT_PLATE_CAPACITY, KEY_DISP_TENSION_CAPACITY, TYPE_TEXTBOX,
-        #        (round(self.plate_tension_capacity / 1000, 2)) if flag else '', True)
-        # out_list.append(t21)
-        #
-        # # if KEY_SEC_PROFILE in ['Back to Back Angles', 'Star Angles','Back to Back Channels']:
-        #
-        # t18 = (None, DISP_TITLE_INTERMITTENT, TYPE_TITLE, None, False)
-        # out_list.append(t18)
-        #
-        # t8 = (None, DISP_TITLE_CONN_DETAILS, TYPE_TITLE, None, False)
-        # out_list.append(t8)
-        #
-        # t21 = (KEY_OUT_INTERCONNECTION, KEY_OUT_DISP_INTERCONNECTION, TYPE_TEXTBOX,
-        #        int(round(self.inter_conn, 0)) if flag else '', False)
-        # out_list.append(t21)
-        #
-        # t21 = (KEY_OUT_INTERSPACING, KEY_OUT_DISP_INTERSPACING, TYPE_TEXTBOX,
-        #        (round(self.inter_memb_length, 2)) if flag else '', False)
-        # out_list.append(t21)
-        #
-        # t18 = (None, DISP_TITLE_BOLTD, TYPE_TITLE, None, False)
-        # out_list.append(t18)
-        #
-        # t9 = (
-        # KEY_OUT_INTER_D_PROVIDED, KEY_OUT_DISP_INTER_D_PROVIDED, TYPE_TEXTBOX, int(self.inter_dia) if flag else '',
-        # False)
-        # out_list.append(t9)
-        #
-        # t10 = (
-        # KEY_OUT_INTER_GRD_PROVIDED, KEY_OUT_DISP_INTER_GRD_PROVIDED, TYPE_TEXTBOX, self.inter_grade if flag else '',
-        # False)
-        # out_list.append(t10)
-        #
-        # t15 = (
-        # KEY_OUT_INTER_BOLT_LINE, KEY_OUT_DISP_INTER_BOLT_LINE, TYPE_TEXTBOX, self.inter_bolt_line if flag else '',
-        # False)
-        # out_list.append(t15)
-        #
-        # t16 = (KEY_OUT_INTER_BOLTS_ONE_LINE, KEY_OUT_DISP_INTER_BOLTS_ONE_LINE, TYPE_TEXTBOX,
-        #        self.inter_bolt_one_line if flag else '', False)
-        # out_list.append(t16)
-        #
-        # t18 = (None, DISP_TITLE_PLATED, TYPE_TITLE, None, False)
-        # out_list.append(t18)
-        #
-        # t20 = (KEY_OUT_INTER_PLATE_HEIGHT, KEY_OUT_DISP_INTER_PLATE_HEIGHT, TYPE_TEXTBOX,
-        #        int(round(self.inter_plate_height, 0)) if flag else '', False)
-        # out_list.append(t20)
-        #
-        # t21 = (KEY_OUT_INTER_PLATE_LENGTH, KEY_OUT_DISP_INTER_PLATE_LENGTH, TYPE_TEXTBOX,
-        #        int(round(self.inter_plate_length, 0)) if flag else '', False)
-        # out_list.append(t21)
-
-
         return out_list
     def func_for_validation(self, design_dictionary):
         '''Need to check'''
         all_errors = []
         self.design_status = False
         flag = False
+        self.output_values(self, flag)
         flag1 = False
         flag2 = False
+        flag3 = False
         option_list = self.input_values(self)
         print(f'\n func_for_validation ' #option list = {option_list}
               f'\n  design_dictionary {design_dictionary}')
         missing_fields_list = []
+        print(f'func_for_validation option_list {option_list}'
+            f"\n  design_dictionary {design_dictionary}"
+              )
         for option in option_list:
             if option[2] == TYPE_TEXTBOX:
                 # print(f"\n option {option}")
@@ -812,17 +617,27 @@ class Compression(Member):
                         else:
                             flag1 = True
                     elif option[0] == KEY_AXIAL :
-                        if float(design_dictionary[option[0]]) <= 0.0:
-                            #print("Input value(s) cannot be equal or less than zero.")
-                            error = "Input value(s) cannot be equal or less than zero."
+                        try:
+                            if float(design_dictionary[option[0]]) <= 0.0:
+                                #print("Input value(s) cannot be equal or less than zero.")
+                                error = "Input value(s) cannot be equal or less than zero."
+                                all_errors.append(error)
+                            else:
+                                flag2 = True
+                        except:
+                            error = "Input value(s) are not valid"
                             all_errors.append(error)
-                        else:
-                            flag2 = True
+                            
             elif option[2] == TYPE_COMBOBOX and option[0] not in [KEY_SEC_PROFILE, KEY_END1, KEY_END2, KEY_LOCATION, KEY_TYP]:
                 val = option[3]
                 if design_dictionary[option[0]] == val[0]:
                     # print(f'option[0] = {option[0]}')
                     missing_fields_list.append(option[1])
+            elif option[0] == KEY_SEC_PROFILE:
+                if design_dictionary[option[0]] not in VALUES_SEC_PROFILE_Compression_Strut:
+                    return 'Provide any Angle section'
+                else:
+                    flag3 = True
         # print(missing_fields_list)
         if len(missing_fields_list) > 0:
 
@@ -833,9 +648,22 @@ class Compression(Member):
             flag = True
 
         #print(f'flag = {flag}')
-        if flag and flag1 and flag2:
+        if flag and flag1 and flag2 and flag3:
             self.set_input_values(self, design_dictionary)
             # print(design_dictionary)
+            if self.design_status ==False :# and len(self.failed_design_dict)>0:
+                logger.error(
+                    "Design Failed, Check Design Report"
+                )
+                return # ['Design Failed, Check Design Report'] @TODO
+            elif self.design_status:
+                pass
+            # else:
+            #     logger.error(
+            #         "Design Failed. Slender Sections Selected"
+            #     )
+            #     return 
+            # ['Design Failed. Selender Sections Selected']
         else:
             return all_errors
         print(f"func_for_validation done")
@@ -847,7 +675,7 @@ class Compression(Member):
         if conn in VALUES_SEC_PROFILE_Compression_Strut:
             return VALUES_LOCATION_1
         else:
-            print(f" chevk fn_conn_type ")
+            print(f" check fn_conn_type ")
 
     # Setting inputs from the input dock GUI
 
@@ -967,7 +795,7 @@ class Compression(Member):
 
         # self.results(self)
 
-        "Unknown keys"
+        # "Unknown keys"
         # if self.sec_profile == Profile_name_1 :
         self.K = self.in_plane * self.out_plane
         self.K = self.K * IS800_2007.cl_7_2_2_effective_length_of_prismatic_compression_members(
@@ -1226,7 +1054,6 @@ class Compression(Member):
         return components
 
     def section_classification(self):
-        """ Classify the sections based on Table 2 of IS 800:2007 """
         # print(f"Inside section_classification")
         local_flag = True
         self.input_section_list = []
@@ -1418,11 +1245,10 @@ class Compression(Member):
     def section_classification_subchecks(self, section):
         if self.sec_profile == Profile_name_1 or self.sec_profile == Profile_name_2 or self.sec_profile == Profile_name_3:  # Angles
             self.section_property = Angle(designation = section, material_grade = self.material)
-        # elif self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[1]:  # Back to Back Angles
-        #     self.section_property = Angle(designation=section, material_grade=self.material)
-        elif self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[3] or self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[3]:  # Channels
-            print(f"section_classification_subchecks error ")
+        # elif self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[3] or self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[3]:  # Channels
+        #     print(f"section_classification_subchecks error ")
             # self.section_property = Channel(designation=section, material_grade=self.material)
+            
         # # elif self.sec_profile == VALUES_SEC_PROFILE[3]:  # Columns
         # #     self.section_property = SHS(designation=section, material_grade=self.material)
         # # elif self.sec_profile == VALUES_SEC_PROFILE[4]:  # CHS

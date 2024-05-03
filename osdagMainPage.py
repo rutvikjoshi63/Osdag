@@ -304,7 +304,7 @@ class OsdagMainWindow(QMainWindow):
                                    ],
                 'Compression Member': [('Columns with known support conditions', 'ResourceFiles/images/CompressionMembers_ColumnsInFrames', 'Column_Design'),
                                        # ('Beam-Column Design', 'ResourceFiles/images/BC_CF-BW-Flush.png', 'Beam_Column_Design'),
-                                       ('Struts in Trusses', 'ResourceFiles/images/strut.jpg', 'Strut_Design'),
+                                       ('Strut in a Truss' , 'ResourceFiles/images/strut.jpg', 'Strut_Design'),
                                        self.show_compression_module,
                                        ],
                 'Flexural Member' : [

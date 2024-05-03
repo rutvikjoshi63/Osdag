@@ -737,7 +737,7 @@ class Flexure(Member):
                 pass
             else:
                 logger.error(
-                    "Design Failed. Selender Sections Selected"
+                    "Design Failed. Slender Sections Selected"
                 )
                 return # ['Design Failed. Selender Sections Selected']
         else:
