@@ -85,7 +85,6 @@ class Compression(Member):
          Changing of this element,(either changing index or text depending on widget type),
          will update the list of keys (this can be more than one).
          TODO: input widget type of keys (3rd element) is no longer required. needs to be removed
-
          """
         change_tab = []
 
@@ -160,7 +159,7 @@ class Compression(Member):
         t2 = ("Optimization", TYPE_TEXTBOX, [KEY_ALLOW_UR, KEY_EFFECTIVE_AREA_PARA, KEY_Buckling_Out_plane, KEY_Buckling_In_plane, KEY_BOLT_Number ]) #KEY_ALLOW_UR, , KEY_STEEL_COST
         design_input.append(t2)
 
-        t2 = ("Optimization", TYPE_COMBOBOX, [ KEY_ALLOW_LOAD, Load_type2, Load_type1, KEY_PLATETHK ]) # KEY_OPTIMIZATION_PARA, KEY_ALLOW_CLASS,
+        t2 = ("Optimization", TYPE_COMBOBOX, [KEY_ALLOW_CLASS, KEY_ALLOW_LOAD, Load_type2, Load_type1, KEY_PLATETHK ]) # KEY_OPTIMIZATION_PARA, KEY_ALLOW_CLASS,
         design_input.append(t2)
 
         t6 = ("Design", TYPE_COMBOBOX, [KEY_DP_DESIGN_METHOD])
@@ -189,7 +188,7 @@ class Compression(Member):
         t1 = (KEY_MATERIAL, [KEY_SEC_MATERIAL], 'Input Dock')
         design_input.append(t1)
 
-        t2 = (None, [KEY_ALLOW_UR, KEY_EFFECTIVE_AREA_PARA, KEY_Buckling_Out_plane, KEY_Buckling_In_plane,
+        t2 = (None, [KEY_ALLOW_CLASS, KEY_ALLOW_UR, KEY_EFFECTIVE_AREA_PARA, KEY_Buckling_Out_plane, KEY_Buckling_In_plane,
                      KEY_DP_DESIGN_METHOD, KEY_ALLOW_LOAD, KEY_BOLT_Number, KEY_PLATETHK
                      ], '')#, KEY_OPTIMIZATION_PARA, KEY_ALLOW_CLASS, KEY_STEEL_COST, KEY_DP_DETAILING_EDGE_TYPE, KEY_DP_DETAILING_EDGE_TYPE,KEY_DP_DETAILING_GAP,
                      # KEY_DP_DETAILING_CORROSIVE_INFLUENCES, KEY_CONNECTOR_MATERIAL , KEY_DP_BOLT_TYPE, KEY_DP_BOLT_HOLE_TYPE, KEY_DP_BOLT_SLIP_FACTOR,
@@ -233,6 +232,7 @@ class Compression(Member):
         val = {
             KEY_ALLOW_UR: '1.0',
             KEY_EFFECTIVE_AREA_PARA: '1.0',
+            KEY_ALLOW_CLASS : 'Yes',
             KEY_Buckling_Out_plane: '1.0',
             KEY_Buckling_In_plane: '1.0',
             KEY_ALLOW_LOAD: Load_type1,
@@ -658,11 +658,11 @@ class Compression(Member):
                 return # ['Design Failed, Check Design Report'] @TODO
             elif self.design_status:
                 pass
-            # else:
-            #     logger.error(
-            #         "Design Failed. Slender Sections Selected"
-            #     )
-            #     return 
+            else:
+                logger.error(
+                    "Design Failed. Slender Sections Selected"
+                )
+                return 
             # ['Design Failed. Selender Sections Selected']
         else:
             return all_errors
@@ -681,8 +681,6 @@ class Compression(Member):
 
     def set_input_values(self, design_dictionary):
         super(Compression,self).set_input_values(self, design_dictionary)
-        #self.sizelist == self.sec_list
-        # section properties
         self.module = design_dictionary[KEY_MODULE]
         self.sizelist = design_dictionary[KEY_SECSIZE]
         self.sec_profile = design_dictionary[KEY_SEC_PROFILE]
@@ -744,7 +742,7 @@ class Compression(Member):
         self.allowable_utilization_ratio = float(design_dictionary[KEY_ALLOW_UR])
         self.effective_area_factor = float(design_dictionary[KEY_EFFECTIVE_AREA_PARA])
         self.optimization_parameter = 'Utilization Ratio'
-        self.allow_class = 'Semi-Compact'
+        self.allow_class = design_dictionary[KEY_ALLOW_CLASS] #'Semi-Compact' # @TODO
         self.load_type = design_dictionary[KEY_ALLOW_LOAD]
         # ['Concentric Load', 'Leg Load']
         # if self.sec_profile == 'Angles':
@@ -761,8 +759,8 @@ class Compression(Member):
 
         self.allowed_sections = []
 
-        # if self.allow_class == "Yes":
-        self.allowed_sections.append('Semi-Compact')
+        if self.allow_class == "Yes":
+            self.allowed_sections.append('Semi-Compact')
             # print(f"Allowed Semi-Compact")
         '''Need to check'''
         # if self.allow_class4 == "Yes":
@@ -831,222 +829,13 @@ class Compression(Member):
         flag = self.section_classification(self)
         if len(self.input_section_list) == 0:
             flag == False
+            logger.warning("Length provided is beyond the limit allowed. [Reference: Cl 3.8, IS 800:2007]")
+            logger.error("Cannot compute. Given Length does not pass for this section.")
+        else:
+            logger.info("Length provided is within the limit allowed. [Reference: Cl 3.8, IS 800:2007]" )
         if flag:
             self.design(self, design_dictionary)
             self.results(self, design_dictionary)
-
-
-        # self.initial_member_capacity(self,design_dictionary)
-        # print(f"self.sec_list {self.sec_list}")
-        # for selectedsize in self.sec_list:
-        #     # print(f"selectedsize{selectedsize}")
-        #     self.select_section(self,selectedsize, design_dictionary)
-
-    # def select_section(self, selectedsize, design_dictionary):
-    #
-    #     "selecting components class based on the section passed "
-    #     print(f" \n select_section started \n")
-    #
-    #     if design_dictionary[KEY_SEC_PROFILE] in ['Angles', 'Back to Back Angles']:
-    #         # print(f"\n selectedsize {selectedsize},\n design_dictionary[KEY_SEC_MATERIAL]{design_dictionary[KEY_SEC_MATERIAL]}")
-    #         self.section_size = Angle(designation=selectedsize, material_grade=design_dictionary[KEY_SEC_MATERIAL])
-    #     else:
-    #         pass
-    #     print(f"\n select_section done \n")
-    #
-    #     return self.section_size
-    #     print(self.selectedsize)
-
-    # Simulation starts here
-    # def design_classification(self):
-    #     """ Classify the sections based on Table 2 of IS 800:2007 """
-    #     self.input_section_list = []
-    #     self.input_section_classification = {}
-    #
-    #     print(f"self.sec_list {self.sec_list}")
-    #
-    #     for section in self.sec_list:
-    #         trial_section = section.strip("'")
-    #         # print(f"trial_section  {trial_section}")
-
-    # def initial_member_capacity(self,design_dictionary,previous_size = None):
-    #
-    #     "selection of member based on the yield capacity"
-    #     min_yield = 0
-    #
-    #     if self.count == 0:
-    #         self.max_section(self,design_dictionary,self.sizelist)
-    #         [self.force1, self.len1, self.slen1, self.gyr1]= self.max_force_length(self,  self.max_area)
-    #         [self.force2, self.len2, self.slen2, self.gyr2] = self.max_force_length(self,  self.max_gyr)
-    #     else:
-    #         pass
-    #
-    #     self.count = self.count + 1
-    #     "Loop checking each member from sizelist based on yield capacity"
-    #     if (previous_size) == None:
-    #         pass
-    #     else:
-    #         if previous_size in self.sizelist:
-    #             self.sizelist.remove(previous_size)
-    #         else:
-    #             pass
-    #     for selectedsize in self.sizelist:
-    #         # print('selectedsize',self.sizelist)
-    #         self.section_size = self.select_section(self,design_dictionary,selectedsize)
-    #         # self.bolt_diameter_min= min(self.bolt.bolt_diameter)
-    #
-    #         # self.edge_dist_min = IS800_2007.cl_10_2_4_2_min_edge_end_dist(self.bolt_diameter_min,self.bolt.bolt_hole_type,
-    #         #                                                               'machine_flame_cut')
-    #         # self.d_0_min = IS800_2007.cl_10_2_1_bolt_hole_size(self.bolt_diameter_min,
-    #         #                                                               design_dictionary[KEY_DP_BOLT_HOLE_TYPE])
-    #
-    #         # self.edge_dist_min_round = round_up(self.edge_dist_min, 5)
-    #         # self.pitch_round = round_up((2.5*self.bolt_diameter_min), 5)
-    #         # if design_dictionary[KEY_SEC_PROFILE] in ['Channels', 'Back to Back Channels']:
-    #         #      self.max_depth = self.section_size_max.max_plate_height()
-    #         # else:
-    #         #     if self.loc == "Long Leg":
-    #         #         self.max_depth =self.section_size_max.max_leg - self.section_size_max.thickness - self.section_size_max.root_radius
-    #         #     else:
-    #         #         self.max_depth =self.section_size_max.min_leg - self.section_size_max.thickness - self.section_size_max.root_radius
-    #
-    #
-    #         "selection of minimum member size required based on the miniumum size of bolt  in bolt diameter list "
-    #
-    #         if design_dictionary[KEY_LOCATION] == "Long Leg":
-    #             if self.section_size.max_leg < self.section_size.root_radius + self.section_size.thickness + (2 *self.edge_dist_min_round):
-    #                 continue
-    #         elif design_dictionary[KEY_LOCATION] == 'Short Leg':
-    #             if self.section_size.min_leg < self.section_size.root_radius + self.section_size.thickness + (2 * self.edge_dist_min_round ):
-    #                 continue
-    #         if design_dictionary[KEY_SEC_PROFILE] =='Channels':
-    #             self.max_plate_height = self.section_size.max_plate_height()
-    #             if self.max_plate_height < (self.pitch_round) + (2 * self.edge_dist_min_round):
-    #                 continue
-    #             else:
-    #                 self.cross_area = self.section_size.area
-    #
-    #         elif design_dictionary[KEY_SEC_PROFILE] == 'Back to Back Channels':
-    #             self.max_plate_height = self.section_size.max_plate_height()
-    #             if self.max_plate_height < (self.pitch_round) + (2 * self.edge_dist_min_round):
-    #                 continue
-    #             else:
-    #                 self.cross_area = self.section_size.area * 2
-    #
-    #         elif design_dictionary[KEY_SEC_PROFILE] =='Angles':
-    #             self.cross_area = self.section_size.area
-    #
-    #         else:
-    #             self.cross_area = self.section_size.area * 2
-    #
-    #         "excluding previous section size which failed in rupture and selecting higher section based on the cross section area "
-    #
-    #         self.section_size.tension_member_yielding(A_g = self.cross_area , F_y =self.section_size.fy)
-    #         self.K = 1.0
-    #         # print(self.section_size.rad_of_gy_z)
-    #         if design_dictionary[KEY_SEC_PROFILE] in ['Angles','Star Angles','Back to Back Angles']:
-    #             # print(selectedsize)
-    #             self.min_rad_gyration_calc(self,designation=self.section_size.designation, material_grade=self.material,
-    #                                        key=self.sec_profile, subkey=self.loc, D_a=self.section_size.a,
-    #                                        B_b=self.section_size.b, T_t=self.section_size.thickness)
-    #         else:
-    #             self.min_rad_gyration_calc(self,designation=self.section_size.designation, material_grade=self.material,
-    #                                        key=self.sec_profile, subkey=self.loc, D_a=self.section_size.depth,
-    #                                        B_b=self.section_size.flange_width, T_t=self.section_size.flange_thickness,
-    #                                        t=self.section_size.web_thickness)
-    #         # print(design_dictionary[KEY_SEC_PROFILE], design_dictionary[KEY_LOCATION], self.section_size.min_radius_gyration)
-    #         self.section_size.design_check_for_slenderness(K=self.K, L=design_dictionary[KEY_LENGTH],r=self.min_radius_gyration)
-    #         # print(self.section_size.tension_yielding_capacity)
-    #
-    #         "condition for yield and slenderness check "
-    #
-    #         if (self.section_size.tension_yielding_capacity >= self.load.axial_force*1000) and self.section_size.slenderness < 400:
-    #             min_yield_current = self.section_size.tension_yielding_capacity
-    #             self.member_design_status = True
-    #             if min_yield == 0:
-    #                 min_yield = min_yield_current
-    #                 self.section_size_1 = self.select_section(self, design_dictionary, selectedsize)
-    #                 self.section_size_1.tension_member_yielding(A_g=self.cross_area, F_y=self.section_size.fy)
-    #                 if design_dictionary[KEY_SEC_PROFILE] in ['Angles', 'Star Angles', 'Back to Back Angles']:
-    #                     self.min_rad_gyration_calc(self,designation=self.section_size_1.designation,
-    #                                                material_grade=self.material,
-    #                                                key=self.sec_profile, subkey=self.loc, D_a=self.section_size_1.a,
-    #                                                B_b=self.section_size_1.b, T_t=self.section_size_1.thickness)
-    #
-    #                 else:
-    #                     self.min_rad_gyration_calc(self,designation=self.section_size_1.designation,
-    #                                                material_grade=self.material,
-    #                                                key=self.sec_profile, subkey=self.loc, D_a=self.section_size_1.depth,
-    #                                                B_b=self.section_size_1.flange_width,
-    #                                                T_t=self.section_size_1.flange_thickness,
-    #                                                t=self.section_size_1.web_thickness)
-    #
-    #                 self.section_size_1.design_check_for_slenderness(K=self.K, L=design_dictionary[KEY_LENGTH],
-    #                                                                  r=self.min_radius_gyration)
-    #
-    #             elif min_yield_current < min_yield:
-    #                 min_yield = min_yield_current
-    #                 self.section_size_1 = self.select_section(self, design_dictionary, selectedsize)
-    #                 self.section_size_1.tension_member_yielding(A_g=self.cross_area, F_y=self.section_size.fy)
-    #                 if design_dictionary[KEY_SEC_PROFILE] in ['Angles', 'Star Angles', 'Back to Back Angles']:
-    #                     self.min_rad_gyration_calc(self,designation=self.section_size_1.designation,
-    #                                                material_grade=self.material,
-    #                                                key=self.sec_profile, subkey=self.loc, D_a=self.section_size_1.a,
-    #                                                B_b=self.section_size_1.b, T_t=self.section_size_1.thickness)
-    #                 else:
-    #                     self.min_rad_gyration_calc(self,designation=self.section_size_1.designation,
-    #                                                material_grade=self.material,
-    #                                                key=self.sec_profile, subkey=self.loc, D_a=self.section_size_1.depth,
-    #                                                B_b=self.section_size_1.flange_width,
-    #                                                T_t=self.section_size_1.flange_thickness,
-    #                                                t=self.section_size_1.web_thickness)
-    #             self.section_size_1.design_check_for_slenderness(K=self.K, L=design_dictionary[KEY_LENGTH],
-    #                                                              r=self.min_radius_gyration)
-    #
-    #             # print(self.section_size_1.slenderness)
-    #
-    #             "condition to limit loop based on max force derived from max available size."
-    #
-    #         elif (self.load.axial_force*1000 > self.force1) :
-    #             self.max_limit_status_1 = True
-    #             # self.design_status = False
-    #             logger.warning(" : The factored tension force ({} kN) exceeds the tension capacity ({} kN) with respect to the maximum available "
-    #                            "member size {}.".format(round(self.load.axial_force,2),round(self.force1/1000,2),self.max_area))
-    #             logger.info(" : Define member(s) with a higher cross sectional area.")
-    #             # logge r.error(": Design is not safe. \n ")
-    #             # logger.info(" :=========End Of design===========")
-    #             break
-    #
-    #             "condition to limit loop based on max length derived from max available size"
-    #
-    #         elif self.length > self.len2:
-    #             self.max_limit_status_2 = True
-    #             # self.design_status = False
-    #             logger.warning(" : The member length ({} mm) exceeds the maximum allowable length ({} mm) with respect to the maximum available "
-    #                            "member size {}.".format(self.length,round(self.len2,2),self.max_gyr))
-    #             logger.info(" : Select member(s) with a higher radius of gyration value.")
-    #             # logger.error(": Design is not safe. \n ")
-    #             # logger.info(" :=========End Of design===========")
-    #             break
-    #
-    #         else:
-    #             pass
-    #
-    #     if self.member_design_status == False and self.max_limit_status_1!=True and self.max_limit_status_2!=True:
-    #         logger.warning(" : The available depth of the member cannot accommodate the minimum available bolt diameter of {} mm considering the "
-    #                        "minimum spacing limit [Ref. Cl. 10.2, IS 800:2007].".format(self.bolt_diameter_min))
-    #         logger.info(" : Reduce the bolt diameter or increase the member depth and re-design.")
-    #         # logger.error(": Design is not safe. \n ")
-    #         # logger.info(" :=========End Of design===========")
-    #
-    #     if self.member_design_status == True:
-    #         print("pass")
-    #         self.design_status = True
-    #         self.select_bolt_dia(self, design_dictionary)
-    #     else:
-    #         self.design_status = False
-    #         logger.error(": Design is unsafe. \n ")
-    #         logger.info(" :=========End Of design===========")
 
     def get_3d_components(self):
 
@@ -1076,32 +865,33 @@ class Compression(Member):
                 self.material_property.connect_to_database_to_get_fy_fu(self.material, self.section_property.thickness)
                 if self.section_property.type == 'Rolled':
                     if self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[0] or self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[2]:
-                        list_Table2_vi= IS800_2007.Table2_vi(self.section_property.min_leg, self.section_property.max_leg, self.section_property.thickness,
+                        self.section_property.section_class, self.width_thickness_ratio, self.depth_thickness_ratio, self.width_depth_thickness_ratio = IS800_2007.Table2_vi(self.section_property.min_leg, self.section_property.max_leg, self.section_property.thickness,
                                                             self.material_property.fy, "Axial Compression")
                     elif self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[1]:
-                        list_Table2_vi = IS800_2007.Table2_vii(self.section_property.min_leg,
+                        self.section_property.section_class, self.width_thickness_ratio, self.depth_thickness_ratio, self.width_depth_thickness_ratio = IS800_2007.Table2_vii(self.section_property.min_leg,
                                                               self.section_property.max_leg,
                                                               self.section_property.thickness,
                                                               self.material_property.fy, "Axial Compression")
                     # print(f"\n \n \n self.material_property.fy {self.material_property.fy} \n \n \n")
-                    self.section_property.section_class = list_Table2_vi[0]
-                    self.width_thickness_ratio  = list_Table2_vi[1]
-                    self.depth_thickness_ratio = list_Table2_vi[2]
-                    self.width_depth_thickness_ratio = list_Table2_vi[3]
+                    # self.section_property.section_class = list_Table2_vi[0]
+                    # self.width_thickness_ratio  = list_Table2_vi[1]
+                    # self.depth_thickness_ratio = list_Table2_vi[2]
+                    # self.width_depth_thickness_ratio = list_Table2_vi[3]
                     #print(f"DONE {self.section_property.section_class} {self.width_thickness_ratio} {self.depth_thickness_ratio} {self.width_depth_thickness_ratio}")
-                    if self.section_property.section_class != 'Slender':
-                        logger.info(
-                            "The section is {}. The b/t of the trial section ({}) is {} and d/t is {} and (b+d)/t is {}.  [Reference: Cl 3.7, IS 800:2007].".format(
-                                self.section_property.section_class, trial_section,
-                                round(self.width_thickness_ratio, 2), round_up(self.depth_thickness_ratio),
-                                round(self.width_depth_thickness_ratio, 2)))
-                    else:
-                        logger.warning(
-                            "The section is {}. The b/t of the trial section ({}) is {} and d/t is {} and (b+d)/t is {}.  [Reference: Cl 3.7, IS 800:2007].".format(
-                                self.section_property.section_class, trial_section,
-                                round(self.width_thickness_ratio, 2), round_up(self.depth_thickness_ratio),
-                                round(self.width_depth_thickness_ratio, 2)))
-                        logger.warning("Ignoring section")
+                    # @TODO add to dictionary to print as log message
+                    # if self.section_property.section_class != 'Slender':
+                    #     logger.info(
+                    #         "The section is {}. The b/t of the trial section ({}) is {} and d/t is {} and (b+d)/t is {}.  [Reference: Cl 3.7, IS 800:2007].".format(
+                    #             self.section_property.section_class, trial_section,
+                    #             round(self.width_thickness_ratio, 2), round_up(self.depth_thickness_ratio),
+                    #             round(self.width_depth_thickness_ratio, 2)))
+                    # else:
+                    #     logger.warning(
+                    #         "The section is {}. The b/t of the trial section ({}) is {} and d/t is {} and (b+d)/t is {}.  [Reference: Cl 3.7, IS 800:2007].".format(
+                    #             self.section_property.section_class, trial_section,
+                    #             round(self.width_thickness_ratio, 2), round_up(self.depth_thickness_ratio),
+                    #             round(self.width_depth_thickness_ratio, 2)))
+                    #     logger.warning("Ignoring section")
 
 
                 else:
@@ -1123,83 +913,25 @@ class Compression(Member):
 
 
             # 2.3 - slenderness ratio
-            # self.section_property.min_rad_gyration_calc(self, self.sec_profile)
             if self.sec_profile == Profile_name_1 or self.sec_profile == Profile_name_2 or self.sec_profile == Profile_name_3:
                 min_radius_gyration, effective_area = self.min_rad_gyration_calc_strut(self,designation= self.section_property.designation, material_grade=self.material,
                                            key=self.sec_profile, subkey=self.loc, D_a=self.section_property.a,
                                            B_b=self.section_property.b, T_t=self.section_property.thickness, t = self.plate_thickness)
-            #     self.min_radius_gyration = min(self.section_property.rad_of_gy_u, self.section_property.rad_of_gy_v)
-            # 
-            # elif self.sec_profile == Profile_name_2 :
-            #     BBAngle_attributes = BBAngle_Properties()
-            #     BBAngle_attributes.data(trial_section, self.material)
-            #     self.effective_area = BBAngle_attributes.calc_Area() * 100  # mm2
-            #     if self.loc == "Long Leg":
-            #         cg1 = self.section_property.Cy  # mm
-            #         cg2 = self.section_property.Cz  # mm
-            #     else:
-            #         cg1 = self.section_property.Cz  # mm
-            #         cg2 = self.section_property.Cy  # mm
-            #     # mom_inertia_y = BBAngle_attributes.calc_MomentOfAreaY(l=self.loc,
-            #     #                                                       thickness=0) * 10 ** 4  # mm**4
-            #     # mom_inertia_z = BBAngle_attributes.calc_MomentOfAreaZ(l=self.loc,
-            #     #                                                       thickness=0) * 10 ** 4  # mm**4
-            #     r_zz = BBAngle_attributes.calc_RogZ(l=self.loc, thickness=0) * 10  # mm
-            #     r_yy = BBAngle_attributes.calc_RogY(l=self.loc, thickness=0) * 10  # mm
-            #     self.min_radius_gyration = min(r_yy, r_zz)
-            #     print(
-            #         " effective_area {}\n loc {}\n cgyy {}\n cgzz {}\n mom_inertia_y {}\n mom_inertia_z {}\n r_zz{}\n r_yy{}\n min_radius_gyration{} ".format(
-            #             self.effective_area, self.loc, cg1, cg2, mom_inertia_y, mom_inertia_z, r_zz, r_yy,
-            #             self.min_radius_gyration))
-            # 
-            # elif self.sec_profile == Profile_name_3 :
-            #     BBAngle_attributes = BBAngle_Properties()
-            #     BBAngle_attributes.data(trial_section, self.material)
-            #     self.effective_area = BBAngle_attributes.calc_Area() * 100 #mm2
-            #     if self.loc == "Long Leg":
-            #         cg1 = self.section_property.Cy#mm
-            #         cg2 = self.section_property.Cz#mm
-            #     else:
-            #         cg1 = self.section_property.Cz#mm
-            #         cg2 = self.section_property.Cy#mm
-            #     mom_inertia_y = BBAngle_attributes.calc_MomentOfAreaY(l = self.loc, thickness= self.plate_thickness) * 10**4#mm**4
-            #     mom_inertia_z = BBAngle_attributes.calc_MomentOfAreaZ(l=self.loc, thickness= self.plate_thickness) * 10**4#mm**4
-            #     r_zz = BBAngle_attributes.calc_RogZ(l=self.loc, thickness=self.plate_thickness) * 10 #mm
-            #     r_yy = BBAngle_attributes.calc_RogY(l=self.loc, thickness=self.plate_thickness) * 10 #mm
-            #     self.min_radius_gyration = min(r_yy, r_zz)
-            #     print(" effective_area {}\n loc {}\n cgyy {}\n cgzz {}\n mom_inertia_y {}\n mom_inertia_z {}\n r_zz{}\n r_yy{}\n min_radius_gyration{} ".format(self.effective_area, self.loc, cg1 ,cg2,mom_inertia_y,mom_inertia_z , r_zz, r_yy,  self.min_radius_gyration) )
-            #     # if self.loc == loc_type1 :
-            #     #     if self.section_property.Cz > self.section_property.Cy :
-            #     #         r_z = self.section_property.rad_of_gy_z
-            #     #         I_yy = 2*(self.section_property.mom_inertia_y + Area(self.section_property.Cy + self.plate_thickness/2)**2)
-            #     #         # r_y =
-            #     # elif self.loc == loc_type2 :
-            #     #     pass
-            #     # else:
-            #     #     print(f" Connection Location not defined")
-            #     #     local_flag = False
-            #     #     break
-
-            slenderness = self.section_property.design_check_for_slenderness(K= self.K, L = self.length, r = min_radius_gyration)#(self.effective_length / self.min_radius_gyration)
-            print(f"min_radius_gyration {min_radius_gyration}"
+            
+            slenderness = self.Angle_attributes.design_check_for_slenderness(K= self.K, L = self.length*1000, r = min_radius_gyration)#(self.effective_length / self.min_radius_gyration)
+            print(f"min_radius_gyration {min_radius_gyration},self.K = {self.K}, self.length = {self.length}"
                   f"slenderness {slenderness}")
             limit = IS800_2007.cl_3_8_max_slenderness_ratio(1)
             if slenderness > limit:
-                logger.warning("Length provided is beyond the limit allowed. [Reference: Cl 3.8, IS 800:2007]")
-                logger.error("Cannot compute. Given Length does not pass for this section.")
                 local_flag = False
-                # self.sec_list.remove(self.section_property.designation )
             else:
-                logger.info("Length provided is within the limit allowed. [Reference: Cl 3.8, IS 800:2007]" )
                 local_flag = True
-
-
-            if len(self.allowed_sections) == 0 or len(self.sec_list) == 0:
-                logger.warning("Select at-least one type of section in the design preferences tab.")
-                logger.error("Cannot compute. Selected section classification type is Null.")
-                self.design_status = False
-                self.design_status_list.append(self.design_status)
-                local_flag = False
+            # if len(self.allowed_sections) == 0 or len(self.sec_list) == 0:
+            #     logger.warning("Select at-least one type of section in the design preferences tab.")
+            #     logger.error("Cannot compute. Selected section classification type is Null.")
+            #     self.design_status = False
+            #     self.design_status_list.append(self.design_status)
+            #     local_flag = False
 
             if self.section_property.section_class in self.allowed_sections and local_flag == True:
                 self.input_section_list.append(trial_section)
@@ -1668,10 +1400,10 @@ class Compression(Member):
 
     def min_rad_gyration_calc_strut(self,designation, material_grade,key,subkey, D_a=0.0,B_b=0.0,T_t=0.0,t=0.0):
         if key == Profile_name_1 and (subkey == loc_type1 or subkey == loc_type2):
-            Angle_attributes = Angle(designation, material_grade)
-            effective_area = Angle_attributes.area
-            rad_u = Angle_attributes.rad_of_gy_u
-            rad_v = Angle_attributes.rad_of_gy_v
+            self.Angle_attributes = Angle(designation, material_grade)
+            effective_area = self.Angle_attributes.area
+            rad_u = self.Angle_attributes.rad_of_gy_u
+            rad_v = self.Angle_attributes.rad_of_gy_v
             min_rad = min(rad_u, rad_v)
 
         elif key == Profile_name_2 and subkey == loc_type1:
@@ -1680,7 +1412,7 @@ class Compression(Member):
             effective_area = BBAngle_attributes.calc_Area() * 100
             rad_y = BBAngle_attributes.calc_RogY(a=D_a,b=B_b,t=T_t,l=loc_type2, thickness = 0) * 10
             rad_z = BBAngle_attributes.calc_RogZ(a=D_a,b=B_b,t=T_t,l=loc_type2, thickness = 0) * 10
-            # mom_inertia_y_1 = mom_inertia_y = self.Angle_attributes.mom_inertia_y
+            # mom_inertia_y_1 = mom_inertia_y = self.self.Angle_attributes.mom_inertia_y
             # mom_inertia_z_1 = mom_inertia_y = self.Angle_attributes.mom_inertia_y
             mom_inertia_y = BBAngle_attributes.calc_MomentOfAreaY(a=D_a,b=B_b,t=T_t, l=loc_type2, thickness = 0)
             mom_inertia_z = BBAngle_attributes.calc_MomentOfAreaZ(a=D_a,b=B_b,t=T_t, l=loc_type2, thickness = 0)

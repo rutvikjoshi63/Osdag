@@ -2650,7 +2650,7 @@ class Member(Main):
     def optimization_tab_strut_design(self, input_dictionary):
         print(f"optimization_tab_strut_design input_dictionary {input_dictionary}")
         values = {
-                  KEY_ALLOW_UR: '1.0',  KEY_EFFECTIVE_AREA_PARA: '1.0', KEY_Buckling_Out_plane: '1.0', KEY_Buckling_In_plane: '1.0',
+                  KEY_ALLOW_UR: '1.0',  KEY_EFFECTIVE_AREA_PARA: '1.0',  KEY_ALLOW_CLASS: 'Yes', KEY_Buckling_Out_plane: '1.0', KEY_Buckling_In_plane: '1.0',
                    KEY_ALLOW_LOAD : Load_type1, KEY_BOLT_Number : '1.0', KEY_PLATETHK : '8'} #KEY_ALLOW_CLASS: 'Yes', KEY_OPTIMIZATION_PARA: 'Utilization Ratio', KEY_STEEL_COST: '50',
 
         for key in values.keys():
@@ -2665,6 +2665,9 @@ class Member(Main):
         t2 = (
         KEY_EFFECTIVE_AREA_PARA, KEY_DISP_EFFECTIVE_AREA_PARA, TYPE_TEXTBOX, None, values[KEY_EFFECTIVE_AREA_PARA])
         optimum.append(t2)
+        
+        t1 = (KEY_ALLOW_CLASS, KEY_DISP_CLASS, TYPE_COMBOBOX, ['Yes'], values[KEY_ALLOW_CLASS])
+        optimum.append(t1)
 
         t1 = (None, Buckling_Type, TYPE_TITLE, None, True, 'No Validator')
         optimum.append(t1)

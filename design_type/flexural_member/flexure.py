@@ -834,7 +834,6 @@ class Flexure(Member):
         print(f"self.allowed_sections {self.allowed_sections}")
         print("==================")
         # print(f"self.load_type {self.load_type}")
-
         print(f"self.module{self.module}")
         print(f"self.sec_list {self.sec_list}")
         print(f"self.material {self.material}")

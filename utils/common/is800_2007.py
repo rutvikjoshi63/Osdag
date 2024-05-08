@@ -380,7 +380,7 @@ class IS800_2007(object):
         bd_t = (width + depth) / thickness
 
         if force_type == 'Axial Compression':
-            if d_t<= (15.7 * epsilon) :
+            if d_t<= (15.7 * epsilon) and b_t<= (15.7 * epsilon) and bd_t <= (25 * epsilon):
                 '''When adding more cases, you need to modify Strut angle'''
                 section_class = KEY_SemiCompact
             else:
@@ -395,7 +395,7 @@ class IS800_2007(object):
             else:
                 section_class = 'Slender'
 
-        return [section_class, b_t,d_t, bd_t ]
+        return (section_class, b_t,d_t, bd_t)
 
 
     @staticmethod
