@@ -827,12 +827,6 @@ class Compression(Member):
         # self.i = 0
         # checking input values
         flag = self.section_classification(self)
-        if len(self.input_section_list) == 0:
-            flag == False
-            logger.warning("Length provided is beyond the limit allowed. [Reference: Cl 3.8, IS 800:2007]")
-            logger.error("Cannot compute. Given Length does not pass for this section.")
-        else:
-            logger.info("Length provided is within the limit allowed. [Reference: Cl 3.8, IS 800:2007]" )
         if flag:
             self.design(self, design_dictionary)
             self.results(self, design_dictionary)
@@ -844,19 +838,14 @@ class Compression(Member):
 
     def section_classification(self):
         # print(f"Inside section_classification")
-        local_flag = True
+        local_flag = False
         self.input_section_list = []
         self.input_section_classification = {}
 
         for section in self.sec_list:
             trial_section = section.strip("'")
-            # print(f"trial_section {trial_section}")
-
-            # section_classification_subchecks(trial_section, self.material)
-
             # fetching the section properties
-            self.section_property = self.section_classification_subchecks(self,trial_section)
-            # print(f"Type of section{type(section)}")
+            self.section_property = self.section_connect_database(self,trial_section)
 
             # section classification
             if (self.sec_profile in VALUES_SEC_PROFILE_Compression_Strut[:3]):  # Angles or Back to Back or 'Star Angle'
@@ -898,7 +887,6 @@ class Compression(Member):
                     print(f"section_classification _ not done")
                     local_flag = False
             elif (self.sec_profile in ['Channels', 'Back to Back Channels']):
-
                 # updating the material property based on thickness of the thickest element
                 self.material_property.connect_to_database_to_get_fy_fu(self.material, self.section_property.web_thickness)
 
@@ -918,7 +906,8 @@ class Compression(Member):
                                            key=self.sec_profile, subkey=self.loc, D_a=self.section_property.a,
                                            B_b=self.section_property.b, T_t=self.section_property.thickness, t = self.plate_thickness)
             
-            slenderness = self.Angle_attributes.design_check_for_slenderness(K= self.K, L = self.length*1000, r = min_radius_gyration)#(self.effective_length / self.min_radius_gyration)
+            slenderness = self.design_check_for_slenderness(self,K= self.K, L = self.length*1000, r = min_radius_gyration)#(self.effective_length / self.min_radius_gyration)
+
             print(f"min_radius_gyration {min_radius_gyration},self.K = {self.K}, self.length = {self.length}"
                   f"slenderness {slenderness}")
             limit = IS800_2007.cl_3_8_max_slenderness_ratio(1)
@@ -936,11 +925,17 @@ class Compression(Member):
             if self.section_property.section_class in self.allowed_sections and local_flag == True:
                 self.input_section_list.append(trial_section)
                 self.input_section_classification.update({trial_section: self.section_property.section_class})
-                # if self.sec_profile != Profile_name_1:
                 self.sec_prop_initial_dict.update({trial_section : (self.section_property.section_class, min_radius_gyration, slenderness, effective_area)}) #, self.width_thickness_ratio,self.depth_thickness_ratio,self.width_depth_thickness_ratio
-        # print(f" sectopn class done {self.sec_list}")
+        
+        if len(self.input_section_list) == 0:
+            local_flag = False
+            logger.warning("Length provided is beyond the limit allowed. [Reference: Cl 3.8, IS 800:2007]")
+            logger.error("Cannot compute. Given Length does not pass for this section.")
+        else:
+            local_flag = True
+            logger.info("Length provided is within the limit allowed. [Reference: Cl 3.8, IS 800:2007]" )
+
         return local_flag
-            # print(f"self.section_property.section_class{self.section_property.section_class}")
 
     #  ======Calculations start here====== #
     def optimization_tab_check(self):
@@ -950,8 +945,8 @@ class Compression(Member):
             logger.info("Provide an appropriate input and re-design.")
             logger.info("Assuming a default value of 1.0.")
             self.allowable_utilization_ratio = 1.0
-            self.design_status = False
-            self.design_status_list.append(self.design_status)
+            # self.design_status = False
+            # self.design_status_list.append(self.design_status)
 
         elif (self.effective_area_factor <= 0.10) or (self.effective_area_factor > 1.0):
             logger.warning(
@@ -959,8 +954,8 @@ class Compression(Member):
             logger.info("Provide an appropriate input and re-design.")
             logger.info("Assuming a default value of 1.0.")
             self.effective_area_factor = 1.0
-            self.design_status = False
-            self.design_status_list.append(self.design_status)
+            # self.design_status = False
+            # self.design_status_list.append(self.design_status)
 
         elif (self.steel_cost_per_kg < 0.10) or (self.effective_area_factor > 1.0):
             # No suggested range in Description
@@ -974,22 +969,20 @@ class Compression(Member):
         else:
             logger.info("Provided appropriate design preference, now checking input.")
 
-    def section_classification_subchecks(self, section):
+    def section_connect_database(self, section):
         if self.sec_profile == Profile_name_1 or self.sec_profile == Profile_name_2 or self.sec_profile == Profile_name_3:  # Angles
             self.section_property = Angle(designation = section, material_grade = self.material)
-        # elif self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[3] or self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[3]:  # Channels
-        #     print(f"section_classification_subchecks error ")
-            # self.section_property = Channel(designation=section, material_grade=self.material)
-            
-        # # elif self.sec_profile == VALUES_SEC_PROFILE[3]:  # Columns
-        # #     self.section_property = SHS(designation=section, material_grade=self.material)
-        # # elif self.sec_profile == VALUES_SEC_PROFILE[4]:  # CHS
-        # #     self.section_property = CHS(designation=section, material_grade=self.material)
-        # else:  # Why?
-        #     self.section_property = Column(designation=section, material_grade=self.material)
         else:
             logger.warning(
                 "The section should be either Angle or Back to Back Angle. ")
+            
+        if self.sec_profile == Profile_name_1 or self.sec_profile == Profile_name_2 or self.sec_profile == Profile_name_3:
+                # self.material_property(self.material, self.section_property.thickness)
+                self.material_property.connect_to_database_to_get_fy_fu(self.material, self.section_property.thickness)
+        elif self.sec_profile in ['Channels', 'Back to Back Channels']:
+            self.material_property.connect_to_database_to_get_fy_fu(self.material, self.section_property.web_thickness)
+        self.epsilon = math.sqrt(250 / self.material_property.fy)
+            
         return self.section_property
 
     def common_checks_1(self, section, step = 1, list_result = [], list_1 = []):
@@ -999,17 +992,13 @@ class Compression(Member):
             print(self.sec_profile)
 
             # fetching the section properties of the selected section
-            self.section_classification_subchecks(self, section)
-            if self.sec_profile == Profile_name_1 or self.sec_profile == Profile_name_2 or self.sec_profile == Profile_name_3:
-                # self.material_property(self.material, self.section_property.thickness)
-                self.material_property.connect_to_database_to_get_fy_fu(self.material, self.section_property.thickness)
-            elif self.sec_profile in ['Channels', 'Back to Back Channels']:
-                self.material_property.connect_to_database_to_get_fy_fu(self.material, self.section_property.web_thickness)
-            self.epsilon = math.sqrt(250 / self.material_property.fy)
+            self.section_connect_database(self, section)
+            
 
             # print(f"Working correct here")
         elif step == 2:
             if self.section_property.section_class == 'Slender':
+                # TODO add this as dic for optimised and ignore
                 logger.warning("The trial section ({}) is Slender. Ignoring section.".format(section))
                 # pass
                 # if (self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[0]) or (self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[1]):  # Angles or Back to Back Angle
@@ -1020,6 +1009,7 @@ class Compression(Member):
                 #     self.effective_area = (2 * 21 * self.epsilon * self.section_property.flange_thickness) * 2
             elif self.section_property.section_class == 'Semi-Compact':
                 if self.sec_profile == Profile_name_2 or self.sec_profile == Profile_name_3 :
+                    # @TODO
                     pass#self.effective_area = 2 * self.section_property.area  # mm2
                 else:
                     self.effective_area = self.section_property.area
@@ -1043,6 +1033,7 @@ class Compression(Member):
             if (self.sec_profile in VALUES_SEC_PROFILE_Compression_Strut[:3]):
                 self.buckling_class = 'c'
             else:
+                self.buckling_class = None
                 print("section not valid")
 
             self.imperfection_factor = IS800_2007.cl_7_1_2_1_imperfection_factor(buckling_class=self.buckling_class)
@@ -1216,27 +1207,18 @@ class Compression(Member):
     #     return self.section_size_max.tension_yielding_capacity, self.max_length, self.section_size_max.slenderness,self.min_radius_gyration
 
     def design(self, design_dictionary , flag = 0):
-        # flag = self.section_classification(self)
-        # print(flag)
         """ Perform design of struct """
         # checking DP inputs
         self.optimization_tab_check(self)
-        # optimization_tab_check()
-        #
-        # print(f"\n self.input_section_list {self.input_section_list}")
-        # print(f"\n self.input_section_classification {self.input_section_classification}")
-        # print(f"\n self.loc {self.loc}")
 
         print(f"\nSections passing initial checks {self.input_section_list}\n")
         if design_dictionary[KEY_AXIAL] == '' and len(self.input_section_list) == 1 :
             self.single_result = {}
-            logger.info("Provided appropriate input and starting design.")
-
+            # logger.info("Provided appropriate input and starting design.")
             self.strength_of_strut(self)
         elif design_dictionary[KEY_AXIAL] != '' :
             if len(self.input_section_list) > 1 :
                 logger.info("Provided appropriate input and starting design.")
-
                 self.design_strut(self)
             elif len(self.input_section_list) != 0 :
                 logger.warning(
@@ -1244,7 +1226,6 @@ class Compression(Member):
                 # logger.error("Cannot compute!")
                 logger.info(" Ignoring load and starting design.")
                 design_dictionary[KEY_AXIAL] = ''
-
                 self.strength_of_strut(self)
             else:
                 # logger.warning(
@@ -1283,9 +1264,6 @@ class Compression(Member):
             logger.info(
                 "The effective sectional area is taken as 100% of the cross-sectional area [Reference: Cl. 7.3.2, IS 800:2007].")
         for section in self.input_section_list:  # iterating the design over each section to find the most optimum section
-
-            # Yield strength of steel
-            # self.common_checks_1(self,section, step=7)
 
             # Common checks
             self.common_checks_1(self, section)
@@ -1397,7 +1375,14 @@ class Compression(Member):
             self.common_checks_1(self, section, 5, list_result, list_1)
             print(f"\n self.optimum_section_cost_results {self.optimum_section_cost_results}"
               f"\n self.optimum_section_ur_results {self.optimum_section_ur_results}")
-
+            
+    def design_check_for_slenderness(self, K, L, r):
+        "KL= effective length of member"
+        "r = radius of gyration of member"
+        slender = (float(K) * float(L)) / float(r)
+        self.slenderness = round(slender, 2)
+        return self.slenderness
+    
     def min_rad_gyration_calc_strut(self,designation, material_grade,key,subkey, D_a=0.0,B_b=0.0,T_t=0.0,t=0.0):
         if key == Profile_name_1 and (subkey == loc_type1 or subkey == loc_type2):
             self.Angle_attributes = Angle(designation, material_grade)
@@ -1451,15 +1436,13 @@ class Compression(Member):
                   mom_inertia_y, '\n mom_inertia_z', mom_inertia_z)
             min_rad = min(rad_y, rad_z)
         return min_rad , effective_area
-    def strength_of_strut(self):
+    
+    def strength_of_strut(self, load = None, len = 1):
         # iterating the design over each section to find the most optimum section
         section = self.input_section_list[0]
         self.single_result = {}
         # Yield strength of steel
         # self.common_checks_1(self,section, step=7)
-
-
-
         # Common checks
         self.common_checks_1(self, section)
         # initialize lists for updating the results dictionary
@@ -1468,12 +1451,13 @@ class Compression(Member):
         print(f"Common checks "
               f"section for design {list_result}")
 
-        # Step 1 - computing the effective sectional area
+        # Step 1 - section class
         self.section_property.section_class = self.input_section_classification[section]
 
         # MIN RADIUS OF GYRATION
         self.min_radius_gyration = self.sec_prop_initial_dict[section][1]
         self.slenderness = self.sec_prop_initial_dict[section][2]
+        
         # Step 1 - computing the effective sectional area
         self.effective_area = self.sec_prop_initial_dict[section][3]
         # SAME AS BEFORE
@@ -1544,7 +1528,7 @@ class Compression(Member):
         # 2.9 - Cost of the section in INR
         self.cost = (self.section_property.unit_mass * self.section_property.area * 1e-4) * self.length * \
                     self.steel_cost_per_kg
-
+        self.ur = load/self.load if load is not None else "NA"
         list_result.extend([self.slenderness, self.euler_buckling_stress,
                                 self.lambda_vv, self.lambda_psi,
                                 self.nondimensional_effective_slenderness_ratio,
@@ -1552,7 +1536,7 @@ class Compression(Member):
                                 self.design_compressive_stress_fr,
                                 self.design_compressive_stress_max,
                                 self.design_compressive_stress,
-                                self.section_capacity,"NA", self.cost]
+                                self.section_capacity,self.ur, self.cost]
                            )
         print(f"list_result {list_result}")
         # Step 3 - Storing the optimum results to a list in a descending order
@@ -1689,65 +1673,85 @@ class Compression(Member):
 
     ### start writing save_design from here!
     def save_design(self, popup_summary):
-
-        if self.connectivity == 'Hollow/Tubular Column Base':
-            if self.dp_column_designation[1:4] == 'SHS':
-                select_section_img = 'SHS'
-            elif self.dp_column_designation[1:4] == 'RHS':
-                select_section_img = 'RHS'
+        self.failed_design_dict = None
+        if (self.design_status and self.failed_design_dict is None) or (not self.design_status and len(self.failed_design_dict)>0):# TODO @Rutvik
+            self.section_property = self.section_connect_database(self, self.result_designation)
+            if self.sec_profile in VALUES_SEC_PROFILE_Compression_Strut[:3]:
+                # connecting_plates = [self.plate.thickness_provided, section_size.web_thickness]
+                if self.loc == "Long Leg":
+                    image = "bblunequaldp"
+                else:
+                    image = "bbsunequaldp"
             else:
-                select_section_img = 'CHS'
-        else:
-            if self.column_properties.flange_slope != 90:
-                select_section_img = "Slope_Beam"
+                connecting_plates = [self.plate.thickness_provided, section_size.web_thickness]
+                if section_size.flange_slope == 90:
+                    image = "Parallel_Channel"
+                else:
+                    image = "Slope_Channel"
+            min_gauge = self.pitch_round
+            row_limit = "Row~Limit~(rl)~=~2"
+            row = 2
+            depth =  2 * self.edge_dist_min_round + self.pitch_round
+            if self.section_property=='Columns' or self.section_property=='Beams':
+                self.report_column = {KEY_DISP_SEC_PROFILE: "ISection",
+                                        KEY_DISP_COLSEC_REPORT: self.section_property.designation,
+                                        KEY_DISP_MATERIAL: self.section_property.material,
+        #                                 KEY_DISP_APPLIED_AXIAL_FORCE: self.section_property.,
+                                        KEY_REPORT_MASS: self.section_property.mass,
+                                        KEY_REPORT_AREA: round(self.section_property.area * 1e-2, 2),
+                                        KEY_REPORT_DEPTH: self.section_property.depth,
+                                        KEY_REPORT_WIDTH: self.section_property.flange_width,
+                                        KEY_REPORT_WEB_THK: self.section_property.web_thickness,
+                                        KEY_REPORT_FLANGE_THK: self.section_property.flange_thickness,
+                                        KEY_DISP_FLANGE_S_REPORT: self.section_property.flange_slope,
+                                        KEY_REPORT_R1: self.section_property.root_radius,
+                                        KEY_REPORT_R2: self.section_property.toe_radius,
+                                        KEY_REPORT_IZ: round(self.section_property.mom_inertia_z * 1e-4, 2),
+                                        KEY_REPORT_IY: round(self.section_property.mom_inertia_y * 1e-4, 2),
+                                        KEY_REPORT_RZ: round(self.section_property.rad_of_gy_z * 1e-1, 2),
+                                        KEY_REPORT_RY: round(self.section_property.rad_of_gy_y * 1e-1, 2),
+                                        KEY_REPORT_ZEZ: round(self.section_property.elast_sec_mod_z * 1e-3, 2),
+                                        KEY_REPORT_ZEY: round(self.section_property.elast_sec_mod_y * 1e-3, 2),
+                                        KEY_REPORT_ZPZ: round(self.section_property.plast_sec_mod_z * 1e-3, 2),
+                                        KEY_REPORT_ZPY: round(self.section_property.plast_sec_mod_y * 1e-3, 2)}
+            elif self.sec_profile == "Angles":
+                self.report_supporting = {KEY_DISP_SEC_PROFILE: image,
+                                        # Image shall be save with this name.png in resource files
+                                        KEY_DISP_SECSIZE: (self.section_property.designation,self.sec_profile),
+                                        KEY_DISP_MATERIAL: self.section_property.material,
+                                        KEY_REPORT_MASS: round(self.section_property.mass,2),
+                                        KEY_REPORT_AREA: round((self.section_property.area),2),
+                                        KEY_REPORT_MAX_LEG_SIZE: round(self.section_property.max_leg,2),
+                                        KEY_REPORT_MIN_LEG_SIZE: round(self.section_property.min_leg,2),
+                                        KEY_REPORT_ANGLE_THK: round(self.section_property.thickness,2),
+                                        KEY_REPORT_R1: round(self.section_property.root_radius,2),
+                                        KEY_REPORT_R2: round(self.section_property.toe_radius,2),
+                                        KEY_REPORT_CY: round(self.section_property.Cy,2),
+                                        KEY_REPORT_CZ: round(self.section_property.Cz,2),
+                                        KEY_REPORT_IZ: round(self.section_property.mom_inertia_z * 1e-4,2),
+                                        KEY_REPORT_IY: round(self.section_property.mom_inertia_y * 1e-4,2),
+                                        KEY_REPORT_IU: round(self.section_property.mom_inertia_u * 1e-4,2),
+                                        KEY_REPORT_IV: round(self.section_property.mom_inertia_v * 1e-4,2),
+                                        KEY_REPORT_RZ: round(self.section_property.rad_of_gy_z * 1e-1,2),
+                                        KEY_REPORT_RY: round((self.section_property.rad_of_gy_y) * 1e-1,2),
+                                        KEY_REPORT_RU: round((self.section_property.rad_of_gy_u) * 1e-1,2),
+                                        KEY_REPORT_RV: round((self.section_property.rad_of_gy_v) * 1e-1,2),
+                                        KEY_REPORT_ZEZ: round(self.section_property.elast_sec_mod_z * 1e-3,2),
+                                        KEY_REPORT_ZEY: round(self.section_property.elast_sec_mod_y * 1e-3,2),
+                                        KEY_REPORT_ZPZ: round(self.section_property.plast_sec_mod_z * 1e-3,2),
+                                        KEY_REPORT_ZPY: round(self.section_property.plast_sec_mod_y * 1e-3,2),
+                                        KEY_REPORT_RADIUS_GYRATION: round(gyration,2)}
             else:
-                select_section_img = "Parallel_Beam"
-
-            # column section properties
-        if self.connectivity == 'Hollow/Tubular Column Base':
-            if self.dp_column_designation[1:4] == 'SHS':
-                section_type = 'Square Hollow Section (SHS)'
-            elif self.dp_column_designation[1:4] == 'RHS':
-                section_type = 'Rectangular Hollow Section (RHS)'
-            else:
-                section_type = 'Circular Hollow Section (CHS)'
-        else:
-            section_type = 'I Section'
-
-
-        if self.section_property=='Columns' or self.section_property=='Beams':
-            self.report_column = {KEY_DISP_SEC_PROFILE: "ISection",
-                                    KEY_DISP_COLSEC_REPORT: self.section_property.designation,
-                                    KEY_DISP_MATERIAL: self.section_property.material,
-    #                                 KEY_DISP_APPLIED_AXIAL_FORCE: self.section_property.,
-                                    KEY_REPORT_MASS: self.section_property.mass,
-                                    KEY_REPORT_AREA: round(self.section_property.area * 1e-2, 2),
-                                    KEY_REPORT_DEPTH: self.section_property.depth,
-                                    KEY_REPORT_WIDTH: self.section_property.flange_width,
-                                    KEY_REPORT_WEB_THK: self.section_property.web_thickness,
-                                    KEY_REPORT_FLANGE_THK: self.section_property.flange_thickness,
-                                    KEY_DISP_FLANGE_S_REPORT: self.section_property.flange_slope,
-                                    KEY_REPORT_R1: self.section_property.root_radius,
-                                    KEY_REPORT_R2: self.section_property.toe_radius,
-                                    KEY_REPORT_IZ: round(self.section_property.mom_inertia_z * 1e-4, 2),
-                                    KEY_REPORT_IY: round(self.section_property.mom_inertia_y * 1e-4, 2),
-                                    KEY_REPORT_RZ: round(self.section_property.rad_of_gy_z * 1e-1, 2),
-                                    KEY_REPORT_RY: round(self.section_property.rad_of_gy_y * 1e-1, 2),
-                                    KEY_REPORT_ZEZ: round(self.section_property.elast_sec_mod_z * 1e-3, 2),
-                                    KEY_REPORT_ZEY: round(self.section_property.elast_sec_mod_y * 1e-3, 2),
-                                    KEY_REPORT_ZPZ: round(self.section_property.plast_sec_mod_z * 1e-3, 2),
-                                    KEY_REPORT_ZPY: round(self.section_property.plast_sec_mod_y * 1e-3, 2)}
-        else:
-            self.report_column = {KEY_DISP_COLSEC_REPORT: self.section_property.designation,
-                                    KEY_DISP_MATERIAL: self.section_property.material,
-                                    #                                 KEY_DISP_APPLIED_AXIAL_FORCE: self.section_property.,
-                                    KEY_REPORT_MASS: self.section_property.mass,
-                                    KEY_REPORT_AREA: round(self.section_property.area * 1e-2, 2),
-                                    KEY_REPORT_DEPTH: self.section_property.depth,
-                                    KEY_REPORT_WIDTH: self.section_property.flange_width,
-                                    KEY_REPORT_WEB_THK: self.section_property.web_thickness,
-                                    KEY_REPORT_FLANGE_THK: self.section_property.flange_thickness,
-                                    KEY_DISP_FLANGE_S_REPORT: self.section_property.flange_slope}
+                self.report_column = {KEY_DISP_COLSEC_REPORT: self.section_property.designation,
+                                        KEY_DISP_MATERIAL: self.section_property.material,
+                                        #                                 KEY_DISP_APPLIED_AXIAL_FORCE: self.section_property.,
+                                        KEY_REPORT_MASS: self.section_property.mass,
+                                        KEY_REPORT_AREA: round(self.section_property.area * 1e-2, 2),
+                                        KEY_REPORT_DEPTH: self.section_property.depth,
+                                        KEY_REPORT_WIDTH: self.section_property.flange_width,
+                                        KEY_REPORT_WEB_THK: self.section_property.web_thickness,
+                                        KEY_REPORT_FLANGE_THK: self.section_property.flange_thickness,
+                                        KEY_DISP_FLANGE_S_REPORT: self.section_property.flange_slope}
 
 
         self.report_input = \
