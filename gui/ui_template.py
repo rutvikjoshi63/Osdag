@@ -205,7 +205,7 @@ class Window(QMainWindow):
         if not main.design_button_status:
             QMessageBox.warning(self, 'Warning', 'No design created!')
             return
-        if main.design_status and main.module_name(main) != KEY_DISP_FLEXURE and main.module_name(main) != KEY_DISP_FLEXURE2:
+        if main.design_status and main.module_name(main) not in [KEY_DISP_FLEXURE,KEY_DISP_FLEXURE2,KEY_DISP_COMPRESSION_STRUT]:
             from osdagMainSettings import backend_name
             off_display, _, _, _ = init_display_off_screen(backend_str=backend_name())
             print('off_display', off_display)

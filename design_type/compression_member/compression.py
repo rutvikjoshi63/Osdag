@@ -28,6 +28,7 @@ import math
 import numpy as np
 from utils.common import is800_2007
 from utils.common.component import *
+from design_report.reportGenerator_latex import CreateLatex
 
 
 
@@ -681,6 +682,7 @@ class Compression(Member):
 
     def set_input_values(self, design_dictionary):
         super(Compression,self).set_input_values(self, design_dictionary)
+        self.mainmodule = KEY_DISP_COMPRESSION_STRUT
         self.module = design_dictionary[KEY_MODULE]
         self.sizelist = design_dictionary[KEY_SECSIZE]
         self.sec_profile = design_dictionary[KEY_SEC_PROFILE]
@@ -1676,22 +1678,24 @@ class Compression(Member):
         self.failed_design_dict = None
         if (self.design_status and self.failed_design_dict is None) or (not self.design_status and len(self.failed_design_dict)>0):# TODO @Rutvik
             self.section_property = self.section_connect_database(self, self.result_designation)
-            if self.sec_profile in VALUES_SEC_PROFILE_Compression_Strut[:3]:
+            if self.sec_profile in VALUES_SEC_PROFILE_Compression_Strut[2]:
                 # connecting_plates = [self.plate.thickness_provided, section_size.web_thickness]
-                if self.loc == "Long Leg":
-                    image = "bblunequaldp"
+                if self.section_property.max_leg == self.section_property.min_leg:
+                    if self.loc == "Long Leg":
+                        image = "bblequaldp"
+                    else:
+                        image = "bbsequaldp"
                 else:
-                    image = "bbsunequaldp"
+                    if self.loc == "Long Leg":
+                        image = "bblunequaldp"
+                    else:
+                        image = "bbsunequaldp"
             else:
-                connecting_plates = [self.plate.thickness_provided, section_size.web_thickness]
-                if section_size.flange_slope == 90:
-                    image = "Parallel_Channel"
-                else:
-                    image = "Slope_Channel"
-            min_gauge = self.pitch_round
-            row_limit = "Row~Limit~(rl)~=~2"
-            row = 2
-            depth =  2 * self.edge_dist_min_round + self.pitch_round
+                    image = "broken"
+            # min_gauge = self.pitch_round
+            # row_limit = "Row~Limit~(rl)~=~2"
+            # row = 2
+            # depth =  2 * self.edge_dist_min_round + self.pitch_round
             if self.section_property=='Columns' or self.section_property=='Beams':
                 self.report_column = {KEY_DISP_SEC_PROFILE: "ISection",
                                         KEY_DISP_COLSEC_REPORT: self.section_property.designation,
@@ -1715,12 +1719,12 @@ class Compression(Member):
                                         KEY_REPORT_ZPZ: round(self.section_property.plast_sec_mod_z * 1e-3, 2),
                                         KEY_REPORT_ZPY: round(self.section_property.plast_sec_mod_y * 1e-3, 2)}
             elif self.sec_profile == "Angles":
-                self.report_supporting = {KEY_DISP_SEC_PROFILE: image,
+                self.report_column = {KEY_DISP_SEC_PROFILE: image,
                                         # Image shall be save with this name.png in resource files
                                         KEY_DISP_SECSIZE: (self.section_property.designation,self.sec_profile),
                                         KEY_DISP_MATERIAL: self.section_property.material,
                                         KEY_REPORT_MASS: round(self.section_property.mass,2),
-                                        KEY_REPORT_AREA: round((self.section_property.area),2),
+                                        KEY_REPORT_AREA: round(self.section_property.area,2),
                                         KEY_REPORT_MAX_LEG_SIZE: round(self.section_property.max_leg,2),
                                         KEY_REPORT_MIN_LEG_SIZE: round(self.section_property.min_leg,2),
                                         KEY_REPORT_ANGLE_THK: round(self.section_property.thickness,2),
@@ -1740,7 +1744,8 @@ class Compression(Member):
                                         KEY_REPORT_ZEY: round(self.section_property.elast_sec_mod_y * 1e-3,2),
                                         KEY_REPORT_ZPZ: round(self.section_property.plast_sec_mod_z * 1e-3,2),
                                         KEY_REPORT_ZPY: round(self.section_property.plast_sec_mod_y * 1e-3,2),
-                                        KEY_REPORT_RADIUS_GYRATION: round(gyration,2)}
+                                        # KEY_REPORT_RADIUS_GYRATION: round(gyration,2)
+                                        }
             else:
                 self.report_column = {KEY_DISP_COLSEC_REPORT: self.section_property.designation,
                                         KEY_DISP_MATERIAL: self.section_property.material,
@@ -1759,71 +1764,99 @@ class Compression(Member):
                 KEY_MODULE: self.module, #"Axial load on column "
                 KEY_DISP_SECTION_PROFILE: self.sec_profile,
                 KEY_MATERIAL: self.material,
-                KEY_DISP_ACTUAL_LEN_ZZ: self.length_zz,
-                KEY_DISP_ACTUAL_LEN_YY: self.length_yy,
+                KEY_DISP_LENGTH_BEAM: self.length,
+                KEY_DISP_SECSIZE: str(self.sec_list),
+                # KEY_DISP_ACTUAL_LEN_YY: self.length_yy,
                 KEY_DISP_END1: self.end_1,
                 KEY_DISP_END2: self.end_2,
-                KEY_DISP_AXIAL: self.load,
+                KEY_DISP_AXIAL: self.load.axial_force,
                 KEY_DISP_SEC_PROFILE: self.sec_profile,
                 KEY_DISP_SECSIZE: self.result_section_class,
-                KEY_DISP_ULTIMATE_STRENGTH_REPORT: self.euler_bs_yy,
-                KEY_DISP_YIELD_STRENGTH_REPORT: self.result_bc_yy,
-
-
+                # KEY_DISP_ULTIMATE_STRENGTH_REPORT: self.euler_bs_yy,
+                # KEY_DISP_YIELD_STRENGTH_REPORT: self.result_bc_yy,
                 "Column Section - Mechanical Properties": "TITLE",
-                "Section Details": self.report_column,
+                "Selected Section Details": self.report_column,
+                KEY_DISP_ULTIMATE_STRENGTH_REPORT: self.material_property.fu,
+                KEY_DISP_YIELD_STRENGTH_REPORT: self.material_property.fy,
+                "Design Preference" : "TITLE"
+        #         KEY_DISP_UR : self.allowable_utilization_ratio,
+        #         KEY_DISP_EFFECTIVE_AREA_PARA: self.effective_area_factor,
+        #         KEY_DISP_CLASS: self.allow_class,
+        #         Buckling_Out_plane: ,
+        #         Buckling_In_plane: ,
+        #         KEY_DISP_LOAD: self.load_type,
+        #         Strut_Bolt_Number: ,
+                
                 }
-
+        # if self.sec_profile == Profile_name_2:
+        #     self.report_input.update({
+        #         'Gusset '+ KEY_GUSSET: ,
+                
+        #     })
         self.report_check = []
 
-        self.h = (self.beam_D - (2 * self.beam_tf))
+        # self.h = (self.beam_D - (2 * self.beam_tf))
 
         #1.1 Input sections display
-        t1 = ('SubSection', 'List of Input Sections',self.input_section_list),
+        # t1 = ('SubSection', 'List of Input Sections',self.input_section_list)
+        t1 = ('Selected', 'Selected Member Data', '|p{5cm}|p{2cm}|p{2cm}|p{2cm}|p{4cm}|')
         self.report_check.append(t1)
-
-        # 2.2 CHECK: Buckling Class - Compatibility Check
-        t1 = ('SubSection', 'Buckling Class - Compatibility Check', '|p{4cm}|p{3.5cm}|p{6.5cm}|p{2cm}|')
+        
+        t1 = ('SubSection', 'Trial', '|p{4cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
         self.report_check.append(t1)
-
-        t1 = ("h/bf , tf ", comp_column_class_section_check_required(self.bucklingclass, self.h, self.bf),
-                comp_column_class_section_check_provided(self.bucklingclass, self.h, self.bf, self.tf, self.var_h_bf),
+        t1 = ("h/bf , tf ", 'comp_column_class_section_check_required(self.bucklingclass, self.h, self.bf)',
+                'comp_column_class_section_check_provided(self.bucklingclass, self.h, self.bf, self.tf, self.var_h_bf)',
                 'Compatible')  # if self.bc_compatibility_status is True else 'Not compatible')
         self.report_check.append(t1)
+        
+        # 2.2 CHECK: Buckling Class - Compatibility Check
+        # t1 = ('SubSection', 'Buckling Class - Compatibility Check', '|p{4cm}|p{3.5cm}|p{6.5cm}|p{2cm}|')
+        # self.report_check.append(t1)
+
+        # t1 = ("h/bf , tf ", 'comp_column_class_section_check_required(self.bucklingclass, self.h, self.bf)',
+        #         'comp_column_class_section_check_provided(self.bucklingclass, self.h, self.bf, self.tf, self.var_h_bf)',
+        #         'Compatible')  # if self.bc_compatibility_status is True else 'Not compatible')
+        # self.report_check.append(t1)
 
         # 2.3 CHECK: Cross-section classification
-        t1 = ('SubSection', 'Cross-section classification', '|p{4.5cm}|p{3cm}|p{6.5cm}|p{1.5cm}|')
-        self.report_check.append(t1)
+        # t1 = ('SubSection', 'Cross-section classification', '|p{4.5cm}|p{3cm}|p{6.5cm}|p{1.5cm}|')
+        # self.report_check.append(t1)
 
-        t1 = ("b/tf and d/tw ", cross_section_classification_required(self.section),
-                cross_section_classification_provided(self.tf, self.b1, self.epsilon, self.section, self.b1_tf,
-                                                    self.d1_tw, self.ep1, self.ep2, self.ep3, self.ep4),
-                'b = bf / 2,d = h – 2 ( T + R1),έ = (250 / Fy )^0.5,Compatible')  # if self.bc_compatibility_status is True else 'Not compatible')
-        self.report_check.append(t1)
+        # t1 = ("b/tf and d/tw ", cross_section_classification_required(self.section),
+        #         cross_section_classification_provided(self.tf, self.b1, self.epsilon, self.section, self.b1_tf,
+        #                                             self.d1_tw, self.ep1, self.ep2, self.ep3, self.ep4),
+        #         'b = bf / 2,d = h – 2 ( T + R1),έ = (250 / Fy )^0.5,Compatible')  # if self.bc_compatibility_status is True else 'Not compatible')
+        # self.report_check.append(t1)
 
-        # 2.4 CHECK : Member Check
-        t1 = ("Slenderness", cl_7_2_2_slenderness_required(self.KL, self.ry, self.lamba),
-                cl_7_2_2_slenderness_provided(self.KL, self.ry, self.lamba), 'PASS')
-        self.report_check.append(t1)
+        # # 2.4 CHECK : Member Check
+        # t1 = ("Slenderness", cl_7_2_2_slenderness_required(self.KL, self.ry, self.lamba),
+        #         cl_7_2_2_slenderness_provided(self.KL, self.ry, self.lamba), 'PASS')
+        # self.report_check.append(t1)
 
-        t1 = (
-        "Design Compressive stress (fcd)", cl_7_1_2_1_fcd_check_required(self.gamma_mo, self.f_y, self.f_y_gamma_mo),
-        cl_7_1_2_1_fcd_check_provided(self.facd), 'PASS')
-        self.report_check.append(t1)
+        # t1 = (
+        # "Design Compressive stress (fcd)", cl_7_1_2_1_fcd_check_required(self.gamma_mo, self.f_y, self.f_y_gamma_mo),
+        # cl_7_1_2_1_fcd_check_provided(self.facd), 'PASS')
+        # self.report_check.append(t1)
 
-        t1 = ("Design Compressive strength (Pd)", cl_7_1_2_design_comp_strength_required(self.axial),
-                cl_7_1_2_design_comp_strength_provided(self.Aeff, self.facd, self.A_eff_facd), "PASS")
-        self.report_check.append(t1)
+        # t1 = ("Design Compressive strength (Pd)", cl_7_1_2_design_comp_strength_required(self.axial),
+        #         cl_7_1_2_design_comp_strength_provided(self.Aeff, self.facd, self.A_eff_facd), "PASS")
+        # self.report_check.append(t1)
 
-        t1 = ('', '', '', '')
-        self.report_check.append(t1)
+        # t1 = ('', '', '', '')
+        # self.report_check.append(t1)
+        # print(sys.path[0])
+        # rel_path = str(sys.path[0])
+        # rel_path = rel_path.replace("\\", "/")
+        # fname_no_ext = popup_summary['filename']
+        # CreateLatex.save_latex(CreateLatex(), self.report_input, self.report_check, popup_summary, fname_no_ext,
+        #                         rel_path, module=self.module)
         print(sys.path[0])
         rel_path = str(sys.path[0])
         rel_path = rel_path.replace("\\", "/")
         fname_no_ext = popup_summary['filename']
+        print('self.report_input:',self.report_input)
         CreateLatex.save_latex(CreateLatex(), self.report_input, self.report_check, popup_summary, fname_no_ext,
-                                rel_path, module=self.module)
-
+                              rel_path, [], '', module=self.module) 
     # def memb_pattern(self, status):
     #
     #     if self.sec_profile in ['Angles', 'Back to Back Angles', 'Star Angles']:
