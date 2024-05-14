@@ -29,6 +29,7 @@ import numpy as np
 from utils.common import is800_2007
 from utils.common.component import *
 from design_report.reportGenerator_latex import CreateLatex
+from Report_functions import *
 
 
 
@@ -687,7 +688,7 @@ class Compression(Member):
         self.sizelist = design_dictionary[KEY_SECSIZE]
         self.sec_profile = design_dictionary[KEY_SEC_PROFILE]
         self.sec_list = design_dictionary[KEY_SECSIZE]
-        self.length = float(design_dictionary[KEY_LENGTH])
+        self.length = float(design_dictionary[KEY_LENGTH]) # in mm
         self.main_material = design_dictionary[KEY_MATERIAL]
         self.material = design_dictionary[KEY_SEC_MATERIAL]
         # try :
@@ -1678,7 +1679,7 @@ class Compression(Member):
         self.failed_design_dict = None
         if (self.design_status and self.failed_design_dict is None) or (not self.design_status and len(self.failed_design_dict)>0):# TODO @Rutvik
             self.section_property = self.section_connect_database(self, self.result_designation)
-            if self.sec_profile in VALUES_SEC_PROFILE_Compression_Strut[2]:
+            if self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[2]:
                 # connecting_plates = [self.plate.thickness_provided, section_size.web_thickness]
                 if self.section_property.max_leg == self.section_property.min_leg:
                     if self.loc == "Long Leg":
@@ -1690,8 +1691,14 @@ class Compression(Member):
                         image = "bblunequaldp"
                     else:
                         image = "bbsunequaldp"
+            elif self.sec_profile == VALUES_SEC_PROFILE_Compression_Strut[0]:
+                # connecting_plates = [self.plate.thickness_provided, section_size.web_thickness]
+                if self.section_property.max_leg == self.section_property.min_leg:
+                    image = "equaldp"
+                else:
+                    image = "unequaldp"
             else:
-                    image = "broken"
+                    image = "back_back_same_side_angles"
             # min_gauge = self.pitch_round
             # row_limit = "Row~Limit~(rl)~=~2"
             # row = 2
@@ -1762,31 +1769,30 @@ class Compression(Member):
         self.report_input = \
             {KEY_MAIN_MODULE: self.mainmodule,
                 KEY_MODULE: self.module, #"Axial load on column "
+                "Section Data": "TITLE",
                 KEY_DISP_SECTION_PROFILE: self.sec_profile,
+                KEY_DISP_LOCATION_STRUT: self.loc,
                 KEY_MATERIAL: self.material,
-                KEY_DISP_LENGTH_BEAM: self.length,
+                KEY_DISP_LENGTH : self.length,
                 KEY_DISP_SECSIZE: str(self.sec_list),
-                # KEY_DISP_ACTUAL_LEN_YY: self.length_yy,
+                "End Condition": "TITLE",
                 KEY_DISP_END1: self.end_1,
                 KEY_DISP_END2: self.end_2,
+                "Factored Loads": "TITLE",
                 KEY_DISP_AXIAL: self.load.axial_force,
-                KEY_DISP_SEC_PROFILE: self.sec_profile,
-                KEY_DISP_SECSIZE: self.result_section_class,
-                # KEY_DISP_ULTIMATE_STRENGTH_REPORT: self.euler_bs_yy,
-                # KEY_DISP_YIELD_STRENGTH_REPORT: self.result_bc_yy,
                 "Column Section - Mechanical Properties": "TITLE",
                 "Selected Section Details": self.report_column,
                 KEY_DISP_ULTIMATE_STRENGTH_REPORT: self.material_property.fu,
                 KEY_DISP_YIELD_STRENGTH_REPORT: self.material_property.fy,
-                "Design Preference" : "TITLE"
-        #         KEY_DISP_UR : self.allowable_utilization_ratio,
-        #         KEY_DISP_EFFECTIVE_AREA_PARA: self.effective_area_factor,
-        #         KEY_DISP_CLASS: self.allow_class,
-        #         Buckling_Out_plane: ,
-        #         Buckling_In_plane: ,
-        #         KEY_DISP_LOAD: self.load_type,
-        #         Strut_Bolt_Number: ,
-                
+                "Design Preference" : "TITLE",
+                KEY_DISP_UR : self.allowable_utilization_ratio,
+                KEY_DISP_EFFECTIVE_AREA_PARA: self.effective_area_factor,
+                KEY_DISP_CLASS: self.allow_class,
+                Buckling_Out_plane: self.out_plane,
+                Buckling_In_plane: self.in_plane,
+                KEY_DISP_LOAD: self.load_type,
+                "End Connection Details" : "TITLE",
+                Strut_Bolt_Number: self.bolts,
                 }
         # if self.sec_profile == Profile_name_2:
         #     self.report_input.update({
@@ -1798,14 +1804,42 @@ class Compression(Member):
         # self.h = (self.beam_D - (2 * self.beam_tf))
 
         #1.1 Input sections display
-        # t1 = ('SubSection', 'List of Input Sections',self.input_section_list)
         t1 = ('Selected', 'Selected Member Data', '|p{5cm}|p{2cm}|p{2cm}|p{2cm}|p{4cm}|')
         self.report_check.append(t1)
-        
-        t1 = ('SubSection', 'Trial', '|p{4cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
+        # TODO
+        t1 = ('SubSection', 'Parameters', '|p{4cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
         self.report_check.append(t1)
-        t1 = ("h/bf , tf ", 'comp_column_class_section_check_required(self.bucklingclass, self.h, self.bf)',
-                'comp_column_class_section_check_provided(self.bucklingclass, self.h, self.bf, self.tf, self.var_h_bf)',
+        # t1 = ('Effective Length ($mm^2$)', ' ',
+        #         sectional_area_change(round(self.result_effective_area,2), round(self.section_property.area,2),
+        #                             self.effective_area_factor),
+        #         ' ')
+        # self.report_check.append(t1)
+        t1 = ('Epsilon ($\epsilon$)', ' ',
+                epsilon(self.material_property.fy,self.epsilon),' ')
+        self.report_check.append(t1)
+        
+        t1 = ('SubSection', 'Section Classification', '|p{3cm}|p{2cm}|p{7cm}|p{2cm}|')
+        self.report_check.append(t1)
+        t1 = ('Criteria 1', '15.7',cl_3_7_2_section_classification_vi_criteria1(self.section_property.b,self.section_property.a,self.section_property.thickness,self.epsilon),' ')
+        self.report_check.append(t1)
+        # t1 = ('Flange Class', self.section_property.type,
+        #         cl_3_7_2_section_classification_flange(round(self.section_property.flange_width/2, 2),
+        #                                             round(self.section_property.flange_thickness, 2), round(
+        #                 self.input_section_classification[self.result_designation][3], 2),
+        #                                             self.epsilon,
+        #                                             self.input_section_classification[self.result_designation][1]),
+        #         ' ')
+        # self.report_check.append(t1)
+        # t1 = ('Section Class', ' ',
+        #         cl_3_7_2_section_classification(
+        #                                             self.input_section_classification[self.result_designation][0]),
+        #         ' ')
+        # self.report_check.append(t1)
+            
+        t1 = ('SubSection', 'Trial', '|p{3cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
+        self.report_check.append(t1)
+        t1 = ("h/bf", 'comp_column, self.bf)',
+                'comp_col, self.tf, self.var_h_bf)',
                 'Compatible')  # if self.bc_compatibility_status is True else 'Not compatible')
         self.report_check.append(t1)
         
