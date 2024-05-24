@@ -2693,13 +2693,60 @@ OPTIMIZATION_TABLE_UI = str("""
 </div>
 </body></html>
 """)
-
+STRUT_OPTIMIZATION_TABLE_UI = str("""
+<div style="width:100%;" style="overflow-x:auto;">
+    <table style="width:100%;" border="1">
+      <tr>
+        <th colspan="6" style="text-align:center;">Constant k<sub>1</sub>, k<sub>2</sub>,k<sub>3</sub></th>
+    </tr>
+    <tr>
+        <th>Sl No.</th>
+        <th colspan="1" style="text-align:center;">No. of Bolts at Each End Condition</th>
+        <th colspan="1" style="text-align:center;">Connecting Member Fixity</th>
+      <th colspan="1" style="text-align:center;">k<sub>1</sub></th>
+      <th colspan="1" style="text-align:center;">k<sub>2</sub></th>
+      <th colspan="1" style="text-align:center;">k<sub>3</sub></th>
+      </tr>
+      <tr style="text-align:center;">
+        <td rowspan="2">(i)</td>
+        <td rowspan="2">>=2</td>
+        <td>Fixed</td>
+        <td>0.20</td>
+        <td>0.35</td>
+        <td>20</td>
+      </tr>
+      <tr style="text-align:center;">
+        <td>Hinged</td>
+        <td>0.70</td>
+        <td>0.60</td>
+        <td>5</td>
+      </tr>
+      <tr style="text-align:center;">
+        <td rowspan="2">(ii)</td>
+        <td rowspan="2">1</td>
+        <td>Fixed</td>
+        <td>0.75</td>
+        <td>0.35</td>
+        <td>20</td>
+      </tr>
+      <tr style="text-align:center;">
+        <td>Hinged</td>
+        <td>1.25</td>
+        <td>0.50</td>
+        <td>60</td>
+      </tr>
+      
+        <!-- Add more rows as needed -->
+</table>
+</div>
+</body></html>
+""")
 STRUT_OPTIMIZATION_DESCRIPTION = (
     '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
     '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
     'p, li { white-space: pre-wrap; }\n'
     '</style></head><body style="font-family:\'Arial\'; font-size:8.25pt; font-weight:400; font-style:normal;">\n'
-) + Allowable_Utilization_Para + Effective_Area_Para # + OPTIMIZATION_TABLE_UI
+) + Allowable_Utilization_Para + Effective_Area_Para 
 
 OPTIMIZATION_TABLE_UI2 = str("""
 <div style="width:100%;" style="overflow-x:auto;">

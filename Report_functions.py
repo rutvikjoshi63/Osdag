@@ -158,52 +158,60 @@ def cl_3_7_2_section_classification_vi_criteria1(b,d,t,epsilon,class_of_section=
     class_of_section = str(class_of_section)
     eqn = Math(inline=True)
     if result_1 <= 15.7*float(epsilon):
-        eqn.append(NoEscape(r'\begin{aligned} \frac{d}{t_f} &= \frac{' + d + r'}{' + t + r'} \le 15.7\varepsilon\\'))
+        eqn.append(NoEscape(r'\begin{aligned} \frac{d}{t} &= \frac{' + d + r'}{' + t + r'} \le 15.7\varepsilon\\'))
         eqn.append(NoEscape(r'&= ' + str(round(result_1,3)) + r'\le'+str(round(15.7*float(epsilon),2))+r'\\'))
         eqn.append(NoEscape(r'& \textbf{Semi-Compact} \end{aligned}'))
     else:
-        eqn.append(NoEscape(r'\begin{aligned} \frac{d}{t_f} &= \frac{' + d + r'}{' + t + r'} > 15.7\varepsilon\\'))
+        eqn.append(NoEscape(r'\begin{aligned} \frac{d}{t} &= \frac{' + d + r'}{' + t + r'} > 15.7\varepsilon\\'))
         eqn.append(NoEscape(r'&= ' + str(round(result_1,3)) + r'\le'+str(round(15.7*float(epsilon),2))+r'\\'))
         eqn.append(NoEscape(r'& \textbf{\color{Red} Slender} \end{aligned}'))
     return eqn
-def cl_3_7_2_section_classification_vi_criteria2(b,d,t,result,epsilon,class_of_section="Semi-Compact"):
+def cl_3_7_2_section_classification_vi_criteria2(b,d,t,epsilon,class_of_section="Semi-Compact"):
     """
     Author: Rutvik Joshi (EMP-24, intern-23,22)
     """
+    result_1 = b/t
+    
     b = str(b)
     d = str(d)
     t = str(t)
-    # ratio = str(ratio)
-    result_1 = str(round(d/t,3))
-    result_2 = str(round(b/t,3))
-    result_12 = str(round(b+d/t,3))
     epsilon = str(epsilon)
     class_of_section = str(class_of_section)
     eqn = Math(inline=True)
-    eqn.append(NoEscape(r'\begin{aligned} \frac{b}{t_f} &= \frac{' + b + r'}{' + t + r'} \le 15.7\varepsilon\\'))
-    eqn.append(NoEscape(r'&= ' + result_2 + r'\le'+str(round(15.7*float(epsilon),2))+r'\\'))
-    eqn.append(NoEscape(r'& \textbf{Semi-Compact} \end{aligned}'))
+    if result_1 <= 15.7*float(epsilon):
+        eqn.append(NoEscape(r'\begin{aligned} \frac{b}{t} &= \frac{' + b + r'}{' + t + r'} \le 15.7\varepsilon\\'))
+        eqn.append(NoEscape(r'&= ' + str(round(result_1,3)) + r'\le'+str(round(15.7*float(epsilon),2))+r'\\'))
+        eqn.append(NoEscape(r'& \textbf{Semi-Compact} \end{aligned}'))
+    else:
+        eqn.append(NoEscape(r'\begin{aligned} \frac{b}{t} &= \frac{' + b + r'}{' + t + r'} > 15.7\varepsilon\\'))
+        eqn.append(NoEscape(r'&= ' + str(round(result_1,3)) + r'\le'+str(round(15.7*float(epsilon),2))+r'\\'))
+        eqn.append(NoEscape(r'& \textbf{\color{Red} Slender} \end{aligned}'))
     return eqn
-def cl_3_7_2_section_classification_vi_criteria3(b,d,t,result,epsilon,class_of_section="Semi-Compact"):
-    """
-    Author: Rutvik Joshi (EMP-24, intern-23,22)
-    """
-    b = str(b)
-    d = str(d)
-    t = str(t)
-    # ratio = str(ratio)
-    result_1 = str(round(d/t,3))
-    result_2 = str(round(b/t,3))
-    result_12 = str(round(b+d/t,3))
-    epsilon = str(epsilon)
-    class_of_section = str(class_of_section)
-    eqn = Math(inline=True)
 
-    eqn.append(NoEscape(r'\begin{aligned} \frac{(b+d)}{t_f} &= \frac{(' +b +r' '+ d + r')}{' + t + r'} \le 25\varepsilon\\'))
-    eqn.append(NoEscape(r'&= ' + result_12 + r'\le'+str(round(25*float(epsilon),2))+r'\\'))
-    eqn.append(NoEscape(r'& \textbf{Semi-Compact}'))
-    eqn.append(NoEscape(r'& [\text{Ref: Table 2, Cl.3.7.2 and 3.7.4, IS 800:2007}] \end{aligned}'))
+def cl_3_7_2_section_classification_vi_criteria3(b,d,t,epsilon,class_of_section="Semi-Compact"):
+    """
+    Author: Rutvik Joshi (EMP-24, intern-23,22)
+    """
+    result_1 = (b+d)/t
+    
+    b = str(b)
+    d = str(d)
+    t = str(t)
+    epsilon = str(epsilon)
+    class_of_section = str(class_of_section)
+    eqn = Math(inline=True)
+    if result_1 <= 25*float(epsilon):
+        eqn.append(NoEscape(r'\begin{aligned} \frac{\left(b+d\right)}{t} &= \frac{' + b +r'+'+ d + r'}{' + t + r'} \le 25\varepsilon\\'))
+        eqn.append(NoEscape(r'&= ' + str(round(result_1,3)) + r'\le'+str(round(25*float(epsilon),2))+r'\\'))
+        eqn.append(NoEscape(r'&\textbf{Semi-Compact} \\'))
+        eqn.append(NoEscape(r'&[\text{Ref: Table 2, Cl.3.7.2 and 3.7.4, IS 800:2007}] \end{aligned}'))
+    else:
+        eqn.append(NoEscape(r'\begin{aligned} \frac{\left(b+d\right)}{t} &= \frac{' + b +r'+'+ d + r'}{' + t + r'} > 25\varepsilon\\'))
+        eqn.append(NoEscape(r'&= ' + str(round(result_1,3)) + r'\le'+str(round(25*float(epsilon),2))+r'\\'))
+        eqn.append(NoEscape(r'&\textbf{\color{Red} Slender} \\'))
+        eqn.append(NoEscape(r'&[\text{Ref: Table 2, Cl.3.7.2 and 3.7.4, IS 800:2007}] \end{aligned}'))
     return eqn
+
 def cl_5_4_1_table_4_5_gamma_value(v, t):
     """
     Calculate gamma value

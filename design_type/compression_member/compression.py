@@ -1820,21 +1820,18 @@ class Compression(Member):
         
         t1 = ('SubSection', 'Section Classification', '|p{3cm}|p{2cm}|p{7cm}|p{2cm}|')
         self.report_check.append(t1)
-        t1 = ('Criteria 1', '15.7',cl_3_7_2_section_classification_vi_criteria1(self.section_property.b,self.section_property.a,self.section_property.thickness,self.epsilon),' ')
+        t1 = ('Criteria 1', 15.7*self.epsilon,cl_3_7_2_section_classification_vi_criteria1(self.section_property.b,self.section_property.a,self.section_property.thickness,self.epsilon),' ')
         self.report_check.append(t1)
-        # t1 = ('Flange Class', self.section_property.type,
-        #         cl_3_7_2_section_classification_flange(round(self.section_property.flange_width/2, 2),
-        #                                             round(self.section_property.flange_thickness, 2), round(
-        #                 self.input_section_classification[self.result_designation][3], 2),
-        #                                             self.epsilon,
-        #                                             self.input_section_classification[self.result_designation][1]),
-        #         ' ')
-        # self.report_check.append(t1)
-        # t1 = ('Section Class', ' ',
-        #         cl_3_7_2_section_classification(
-        #                                             self.input_section_classification[self.result_designation][0]),
-        #         ' ')
-        # self.report_check.append(t1)
+        t1 = ('Criteria 2', 15.7*self.epsilon,cl_3_7_2_section_classification_vi_criteria2(self.section_property.b,self.section_property.a,self.section_property.thickness,self.epsilon),' ')
+        self.report_check.append(t1)
+        
+        t1 = ('Criteria 3',25*self.epsilon,cl_3_7_2_section_classification_vi_criteria3(self.section_property.b,self.section_property.a,self.section_property.thickness,self.epsilon),' ')
+        self.report_check.append(t1)
+        
+        t1 = ('Section Class', ' ',
+                cl_3_7_2_section_classification(self.result_section_class),
+                ' ')
+        self.report_check.append(t1)
             
         t1 = ('SubSection', 'Trial', '|p{3cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
         self.report_check.append(t1)
@@ -1843,6 +1840,9 @@ class Compression(Member):
                 'Compatible')  # if self.bc_compatibility_status is True else 'Not compatible')
         self.report_check.append(t1)
         
+        if self.load_type == "Leg Load":
+            pass
+            
         # 2.2 CHECK: Buckling Class - Compatibility Check
         # t1 = ('SubSection', 'Buckling Class - Compatibility Check', '|p{4cm}|p{3.5cm}|p{6.5cm}|p{2cm}|')
         # self.report_check.append(t1)

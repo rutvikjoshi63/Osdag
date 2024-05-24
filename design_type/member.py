@@ -2768,15 +2768,15 @@ class Member(Main):
 
         if KEY_SEC_PROFILE in input_dictionary:
             if input_dictionary[KEY_SEC_PROFILE] == Profile_name_1:
-                t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION + Single_Angle_Out_Plane + Single_Angle_In_Plane, None)
+                t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION + Single_Angle_Out_Plane + Single_Angle_In_Plane + STRUT_OPTIMIZATION_TABLE_UI, None)
 
             elif input_dictionary[KEY_SEC_PROFILE] == Profile_name_2:
-                t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION + Double_angle_same_gusset + Same_Side_of_Gusset_Out_Plane + Same_Side_of_Gusset_In_Plane, None)
+                t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION + Double_angle_same_gusset + Same_Side_of_Gusset_Out_Plane + Same_Side_of_Gusset_In_Plane + STRUT_OPTIMIZATION_TABLE_UI, None)
 
             elif input_dictionary[KEY_SEC_PROFILE] == Profile_name_3:
-                t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION + Double_angle_opposite_gusset + Opposite_Side_of_Gusset_Out_Plane + Opposite_Side_of_Gusset_In_Plane, None)
+                t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION + Double_angle_opposite_gusset + Opposite_Side_of_Gusset_Out_Plane + Opposite_Side_of_Gusset_In_Plane + STRUT_OPTIMIZATION_TABLE_UI, None)
         else:
-            t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION, None)
+            t9 = ("textBrowser", "", TYPE_TEXT_BROWSER, STRUT_OPTIMIZATION_DESCRIPTION + STRUT_OPTIMIZATION_TABLE_UI, None)
         optimum.append(t9)
 
         return optimum
