@@ -1818,6 +1818,10 @@ class Compression(Member):
                 epsilon(self.material_property.fy,self.epsilon),' ')
         self.report_check.append(t1)
         
+        t1 = ('Effective Slenderness ratio ($\lambda$)', ' ',
+                cl_3_8_slenderness_req(self.K,self.length,round(self.min_radius_gyration,3), self.slenderness,180),' ')
+        self.report_check.append(t1)
+        
         t1 = ('SubSection', 'Section Classification', '|p{3cm}|p{2cm}|p{7cm}|p{2cm}|')
         self.report_check.append(t1)
         t1 = ('Criteria 1', 15.7*self.epsilon,cl_3_7_2_section_classification_vi_criteria1(self.section_property.b,self.section_property.a,self.section_property.thickness,self.epsilon),' ')

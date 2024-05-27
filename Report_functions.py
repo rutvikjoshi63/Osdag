@@ -211,7 +211,24 @@ def cl_3_7_2_section_classification_vi_criteria3(b,d,t,epsilon,class_of_section=
         eqn.append(NoEscape(r'&\textbf{\color{Red} Slender} \\'))
         eqn.append(NoEscape(r'&[\text{Ref: Table 2, Cl.3.7.2 and 3.7.4, IS 800:2007}] \end{aligned}'))
     return eqn
+def cl_3_8_slenderness_req(K,L,r, klr, ratio = 180):
+    """
+    :return:
+    """
+    K = str(K)
+    L = str(L)
+    r = str(r)
+    slenderlimit_eqn = Math(inline=True)
+    slenderlimit_eqn.append(NoEscape(r'\begin{aligned}\lambda &= \frac{K L}{r} \leq '+str(ratio)+r'\\'))
+    slenderlimit_eqn.append(NoEscape(r'& = \frac{'+K+r'\times'+ L+r'}{'+r+r'}\\'))
+    if klr<= ratio:
+        slenderlimit_eqn.append(NoEscape(r'& ='+str(round(klr,3))+r'\leq'+str(ratio)+r'\\'))
+    else:
+        slenderlimit_eqn.append(NoEscape(r'& = {\color{Red}'+str(round(klr,3))+r'} >'+str(ratio)+r'\\'))
+        
+    slenderlimit_eqn.append(NoEscape(r'&[\text{Ref: Table 3, Cl.3.8, IS 800:2007}] \end{aligned}'))
 
+    return slenderlimit_eqn
 def cl_5_4_1_table_4_5_gamma_value(v, t):
     """
     Calculate gamma value
@@ -936,6 +953,7 @@ def sectional_area_change(given, provided, parameter):
     # Pmc_eqn.append(NoEscape(r'& [\text{Further checks for High shear}] \end{aligned}'))
 
     return Pmc_eqn
+
 def cl_8_4_shear_capacity_member(V_dy, V_dn, V_db=0.0, shear_case='low'):
     """
     Calculate shear capacity of member
