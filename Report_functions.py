@@ -489,13 +489,13 @@ def cl_6_4_blockshear_capacity_member(Tdb, A_vg=None, A_vn=None, A_tg=None, A_tn
     return member_block_eqn
 
 
-def slenderness_req():
+def slenderness_req(var = '400'): # making change
     """
     :return:
     """
 
     slenderlimit_eqn = Math(inline=True)
-    slenderlimit_eqn.append(NoEscape(r'\begin{aligned}\frac{K L}{r} &\leq 400\end{aligned}'))
+    slenderlimit_eqn.append(NoEscape(r'\begin{aligned}\frac{K L}{r} &\leq '+str(var)+r'\end{aligned}'))
 
     return slenderlimit_eqn
 
