@@ -1037,7 +1037,8 @@ class Compression(Member):
                 self.buckling_class = 'c'
             else:
                 self.buckling_class = None
-                print("section not valid")
+                logger.warning("The section profile is not defined")
+                # print("section not valid")
 
             self.imperfection_factor = IS800_2007.cl_7_1_2_1_imperfection_factor(buckling_class=self.buckling_class)
 
@@ -1818,9 +1819,17 @@ class Compression(Member):
                 epsilon(self.material_property.fy,self.epsilon),' ')
         self.report_check.append(t1)
         
-        t1 = ('Effective Slenderness ratio ($\lambda$)', ' ',
-                cl_3_8_slenderness_req(self.K,self.length,round(self.min_radius_gyration,3), self.slenderness,180),' ')
+        t1 = ('Effective Area ($mm^2$)', ' ',
+                  sectional_area_change(round(self.result_effective_area,2), round(self.section_property.area,2),
+                                        self.effective_area_factor),
+                  ' ')
         self.report_check.append(t1)
+            
+        
+            
+        # t1 = ('Effective Slenderness ratio ($\lambda$)', ' ',
+        #         cl_3_8_slenderness_req(self.K,self.length,round(self.min_radius_gyration,3), self.slenderness,180),' ')
+        # self.report_check.append(t1)
         
         t1 = ('SubSection', 'Section Classification', '|p{3cm}|p{2cm}|p{7cm}|p{2cm}|')
         self.report_check.append(t1)
@@ -1835,6 +1844,20 @@ class Compression(Member):
         t1 = ('Section Class', ' ',
                 cl_3_7_2_section_classification(self.result_section_class),
                 ' ')
+        self.report_check.append(t1)
+            
+
+        t1 = ('SubSection', 'Member Check', '|p{4cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
+        self.report_check.append(t1)
+        
+        t5 = (KEY_DISP_SLENDER+' ($\lambda$)', slenderness_req(180),
+                  cl_7_1_2_effective_slenderness_ratio(self.K, self.length, round(self.min_radius_gyration,3),
+                                                       self.slenderness), get_pass_fail(180,self.slenderness, relation="geq"))
+        self.report_check.append(t5)
+        
+        t1 = (KEY_DISP_IMPERFECTION_FACTOR_ZZ + r'($\alpha_{LT}$)', ' ',
+                      cl_8_7_1_5_imperfection_factor(self.result_IF_lt),
+                      ' ')
         self.report_check.append(t1)
             
         t1 = ('SubSection', 'Trial', '|p{3cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
