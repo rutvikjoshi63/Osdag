@@ -1856,9 +1856,43 @@ class Compression(Member):
         self.report_check.append(t5)
         
         t1 = (KEY_DISP_IMPERFECTION_FACTOR_ZZ + r'($\alpha_{LT}$)', ' ',
-                      cl_8_7_1_5_imperfection_factor(self.result_IF_lt),
+                      cl_8_7_1_5_imperfection_factor(self.result_IF),
                       ' ')
         self.report_check.append(t1)
+        
+        
+
+        # t1 = (KEY_DISP_BUCKLING_STRENGTH, self.load.shear_force * 10 ** -3,
+        #         cl_7_1_2_design_compressive_strength(self.result_capacity,round((
+        #                 self.bearing_length + self.section_property.depth / 2) * self.section_property.web_thickness,2), self.result_fcd,self.load.shear_force * 10 ** -3),
+        #         get_pass_fail(self.load.shear_force * 10 ** -3, round(self.result_capacity, 2), relation="leq"))
+        # self.report_check.append(t1)
+        
+        
+        if self.load_type == 'Concentric Load':
+            # print(f"step == 4"
+            #       f"list_result {list_result}")
+            # self.lambda_vv = 'NA'
+            # self.lambda_psi = 'NA'
+            # self.common_checks_1(self, section, step=4, list_result=['Concentric'])
+            t1 = (KEY_DISP_EULER_BUCKLING_STRESS_ZZ, ' ',
+                      cl_8_7_1_5_buckling_stress(self.section_property.modulus_of_elasticity,self.result_eff_sr,self.result_ebs),
+                      ' ')
+            self.report_check.append(t1)
+            
+            t1 = ('$\phi$', ' ',
+                    cl_8_7_1_5_phi(0.49,self.result_eff_sr, self.result_phi_zz),
+                    ' ')
+            self.report_check.append(t1)
+
+            t1 = ('Buckling stress($N/mm^2$)', ' ',
+                    cl_8_7_1_5_Buckling(self.material_property.fy,self.gamma_m0,self.result_eff_sr,self.result_phi_zz,self.result_fcd_2,self.result_fcd),
+                    ' ')
+            self.report_check.append(t1)
+        else:
+            pass
+
+            
             
         t1 = ('SubSection', 'Trial', '|p{3cm}|p{1.5cm}|p{9.5cm}|p{1cm}|')
         self.report_check.append(t1)
