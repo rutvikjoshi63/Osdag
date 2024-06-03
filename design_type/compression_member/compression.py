@@ -1013,7 +1013,7 @@ class Compression(Member):
             elif self.section_property.section_class == 'Semi-Compact':
                 if self.sec_profile == Profile_name_2 or self.sec_profile == Profile_name_3 :
                     # @TODO
-                    pass#self.effective_area = 2 * self.section_property.area  # mm2
+                    pass #self.effective_area = 2 * self.section_property.area  # mm2
                 else:
                     self.effective_area = self.section_property.area
                 print(f"effective_area{self.effective_area}")
@@ -1021,7 +1021,7 @@ class Compression(Member):
 
             # reduction of the area based on the connection requirements (input from design preferences)
             if self.effective_area_factor < 1.0:
-                self.effective_area = round(self.effective_area * self.effective_area_factor, 2)
+                self.effective_area = round(self.effective_area * self.effective_area_factor, 3)
 
                 logger.warning(
                     "Reducing the effective sectional area as per the definition in the Design Preferences tab.")
