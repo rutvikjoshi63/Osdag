@@ -1,6 +1,7 @@
 """
 
 @Author:    Rutvik Joshi - Osdag Team, IIT Bombay [(P) rutvikjoshi63@gmail.com / 30005086@iitb.ac.in]
+            Neela Lakshmi - MTech 24
 
 @Module - Plate Girder- Welded
 
