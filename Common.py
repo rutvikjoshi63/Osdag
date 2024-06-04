@@ -647,6 +647,13 @@ KEY_DISP_EndPost = 'End Post'
 KEY_DISP_Plate_Girder_PROFILE = 'Section Profile'
 KEY_IntermediateStiffener_spacing = 'IntermediateStiffener.Spacing'
 KEY_DISP_IntermediateStiffener_spacing = 'Intermediate Stiffener Spacing'
+Key_Usuage = 'Usuage.Girder'
+Key_DISP_Usuage = 'Usuage'
+Key_Web = 'Web_Thickness.Girder'
+Key_DISP_Web = 'Web'
+Key_SThick = 'Section_Thickness.Girder'
+Key_DISP_SThick = 'Section Thickness'
+
 ###################################
 # All Input Keys
 ###################################

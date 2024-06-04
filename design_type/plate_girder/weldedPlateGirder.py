@@ -360,9 +360,6 @@ class PlateGirderWelded(Member):
         t2 = (KEY_SEC_PROFILE, 'Section Profile', TYPE_COMBOBOX, VALUES_SEC_PROFILE3, True, 'No Validator') # 'TEMP1'
         options_list.append(t2)
 
-        t4 = (KEY_SECSIZE, 'Section Size', TYPE_COMBOBOX_CUSTOMIZED, ['All','Customized'], True, 'No Validator') #'TEMP2'
-        options_list.append(t4)
-
         t1 = (KEY_MODULE, self.module, TYPE_MODULE, None, True, "No Validator")
         options_list.append(t1)
 
@@ -372,20 +369,54 @@ class PlateGirderWelded(Member):
         t2 = (KEY_SEC_PROFILE, KEY_DISP_Plate_Girder_PROFILE, TYPE_NOTE, KEY_PLATE_GIRDER_MAIN_MODULE, True, 'No Validator') #'Beam and Column'
         options_list.append(t2)
 
-        t1 = (KEY_tf, KEY_DISP_tf + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
-        options_list.append(t1)
-        t1 = (KEY_tw, KEY_DISP_tw + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
-        options_list.append(t1)
-        t1 = (KEY_dw, KEY_DISP_dw + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
-        options_list.append(t1)
-        t1 = (KEY_bf, KEY_DISP_bf + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
-        options_list.append(t1)
+        t9 = (None, 'Section Thickness', TYPE_TITLE, None, True, 'No Validator')
+        options_list.append(t9)
+
+        t4 = (KEY_SECSIZE, Key_DISP_SThick, TYPE_COMBOBOX_CUSTOMIZED, VALUES_D, True, 'No Validator') #'TEMP2'
+        options_list.append(t4)
+        
+        # t10 = (Key_SThick, Key_DISP_SThick , TYPE_COMBOBOX_CUSTOMIZED, VALUES_D, True, 'No Validator')
+        # options_list.append(t10)
+        
+        # t1 = (KEY_tf, KEY_DISP_tf + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
+        # options_list.append(t1)
+        # t1 = (KEY_tw, KEY_DISP_tw + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
+        # options_list.append(t1)
+        # t1 = (KEY_dw, KEY_DISP_dw + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
+        # options_list.append(t1)
+        # t1 = (KEY_bf, KEY_DISP_bf + '*', TYPE_TEXTBOX, None, True, 'Int Validator')
+        # options_list.append(t1)
         
         t4 = (KEY_MATERIAL, KEY_DISP_MATERIAL, TYPE_COMBOBOX, VALUES_MATERIAL, True, 'No Validator')
         options_list.append(t4)
+        t2 = (
+            KEY_DESIGN_TYPE_FLEXURE,
+            KEY_BEAM_SUPP_TYPE,
+            TYPE_COMBOBOX,
+            [VALUES_SUPP_TYPE_temp[0]],
+            True,
+            "No Validator",
+        )
+        options_list.append(t2)
+        
+        t10 = (KEY_TORSIONAL_RES, DISP_TORSIONAL_RES, TYPE_COMBOBOX, Torsion_Restraint_list, True, 'No Validator')
+        options_list.append(t10)
+        
+        t11 = (KEY_WARPING_RES, DISP_WARPING_RES, TYPE_COMBOBOX, Warping_Restraint_list, True, 'No Validator')
+        options_list.append(t11)
+        
         t5 = (KEY_LENGTH, KEY_DISP_LENGTH_BEAM, TYPE_TEXTBOX, None, True, 'Int Validator')
         options_list.append(t5)
-
+        
+        t5 = (Key_Usuage, Key_DISP_Usuage, TYPE_COMBOBOX, ['building'], True, 'No Validator')
+        options_list.append(t5)
+        
+        t5 = (Key_Web, Key_DISP_Web, TYPE_COMBOBOX, ['Thick','Thin'], True, 'No Validator')
+        options_list.append(t5)
+        
+        t5 = (KEY_IntermediateStiffener, KEY_DISP_IntermediateStiffener, TYPE_COMBOBOX, ['Yes','No'], True, 'No Validator')
+        options_list.append(t5)
+        
         t7 = (None, DISP_TITLE_FSL, TYPE_TITLE, None, True, 'No Validator')
         options_list.append(t7)
 
@@ -395,16 +426,15 @@ class PlateGirderWelded(Member):
         t8 = (KEY_SHEAR, KEY_DISP_SHEAR, TYPE_TEXTBOX, None, True, 'No Validator')
         options_list.append(t8)
 
-        
-
         t8 = (KEY_BUCKLING_STRENGTH, KEY_DISP_BUCKLING_STRENGTH, TYPE_COMBOBOX, ['Yes','No'], True, 'No Validator')
         options_list.append(t8)
 
         t8 = (KEY_WEB_CRIPPLING, KEY_DISP_CRIPPLING_STRENGTH, TYPE_COMBOBOX, ['Yes','No'], True, 'No Validator')
         options_list.append(t8)
         
-        t17 = (KEY_DESIGN_PREFERENCE_REDIRECT, KEY_DISPLAY_DESIGN_PREFERENCE_REDIRECT, TYPE_IN_BUTTON, 'Design Preference ', True)
-        options_list.append(t17)
+        # TODO: Below button code should be moved to the ui template file so that it is shown in all modules withoiut changing any previous behaviour.
+        # t17 = (KEY_DESIGN_PREFERENCE_REDIRECT, KEY_DISPLAY_DESIGN_PREFERENCE_REDIRECT, TYPE_IN_BUTTON, 'Design Preference ', True)
+        # options_list.append(t17)
         
         return options_list
 
